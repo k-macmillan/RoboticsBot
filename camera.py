@@ -12,9 +12,9 @@ class Camera():
         while (True):
             ret, frame = self.vid_capture.read()
             self.lf.UpdateAll(frame)
-            cv.imshow('frame',frame)
-            cv.imshow('mask',self.lf.hsv_mask.mask)
-            cv.imshow('yellowcard', self.lf.stop_mask.mask)
+            cv.imshow('Untouched Frame',frame)
+            cv.imshow('Black Detection',self.lf.hsv_mask.mask)
+            cv.imshow('Yellow Detection', self.lf.stop_mask.mask)
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
 
