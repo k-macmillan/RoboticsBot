@@ -13,7 +13,7 @@ class HSV():
 
         # define range of black in HSV
         lower_black = np.array([0,0,0])
-        upper_black = np.array([255,255,20])
+        upper_black = np.array([255,255,40])
 
 
         # Threshold the HSV image
