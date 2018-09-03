@@ -5,11 +5,14 @@ class HSV():
     def __init__(self):
         self.frame = 0
         self.mask = 0
-        self.hsf = 0
+        self.hsv = 0
 
-    def blackout(self, frame):
-        # Convert BGR to HSV
+    def SetHSV(self, frame):
+        """ Convert BGR to HSV """
         self.hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+
+
+    def SetMask(self, frame):
 
         # define range of black in HSV
         lower_black = np.array([0,0,0])
