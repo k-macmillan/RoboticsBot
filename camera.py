@@ -13,10 +13,10 @@ class Camera():
         hsvImg = cv.cvtColor(self.frame,cv.COLOR_BGR2HSV)
 
         #multiple by a factor to change the saturation
-        hsvImg[...,1] = hsvImg[...,1]*2.8
+        hsvImg[...,1] = hsvImg[...,1]*1.3
 
         #multiple by a factor of less than 1 to reduce the brightness 
-        hsvImg[...,2] = hsvImg[...,2]*0.5
+        hsvImg[...,2] = hsvImg[...,2]*0.8
 
         self.frame = cv.cvtColor(hsvImg,cv.COLOR_HSV2BGR)
 
@@ -24,7 +24,7 @@ class Camera():
     def loop(self):
         while (True):
             ret, self.frame = self.vid_capture.read()
-            self.adjustSaturationBrightness()
+            # self.adjustSaturationBrightness()
             self.lf.UpdateAll(self.frame)
             cv.imshow('Untouched Frame',self.frame)
             cv.imshow('Black Detection',self.lf.hsv_mask.mask)

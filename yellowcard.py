@@ -9,8 +9,8 @@ class YellowCard():
     def SetMask(self, hsv):
 
         # define range of yellow in HSV
-        lower_yellow = np.array([15, 210,20])
-        upper_yellow = np.array([35,255,255])
+        lower_yellow = np.array([23,86,120]) # 20 100 100
+        upper_yellow = np.array([62,160,255]) # 30 255 255
 
 
         # Threshold the HSV image
