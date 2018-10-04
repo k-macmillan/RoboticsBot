@@ -1,0 +1,3 @@
+[submodule "geekbot_resources"]
+	path = geekbot_resources
+	url = git@github.com:sdsmt-robotics/geekbot_resources.git
