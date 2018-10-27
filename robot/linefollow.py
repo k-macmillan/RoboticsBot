@@ -2,7 +2,7 @@ from robot.vision import HSV, YellowDetector
 
 # https://docs.opencv.org/3.4/dd/d49/tutorial_py_contour_features.html
 
-class LineFollow():
+class LineFollow(object):
     def __init__(self, width, height):
         self.hsv_mask = HSV()
         self.stop_mask = YellowDetector()
