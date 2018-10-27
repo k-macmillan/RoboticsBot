@@ -1,9 +1,11 @@
 from enum import Enum
 
-WHEEL_LEFT = '/geekbot/left_wheel'
+WHEEL_LEFT  = '/geekbot/left_wheel'
 WHEEL_RIGHT = '/geekbot/right_wheel'
 WHEEL_TWIST = '/geekbot/wheel_twist'
 
+CAM_CENTER_DIST = '/geekbot/camera_center_dist'
+CAM_OBJECT      = '/geekbot/camera_object'
 
 class State(Enum):
     START = 0
