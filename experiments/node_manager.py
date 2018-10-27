@@ -38,7 +38,7 @@ class Node(multiprocessing.Process):
         Should be implemented by a derived class if the derived class requires
         a notification that it's being terminated.
         """
-        print('Terminating Node', self)
+        print('Terminating Node: ', self.__name)
 
 
 class NodeManager(object):
