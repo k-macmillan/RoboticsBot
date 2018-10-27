@@ -32,7 +32,7 @@ class Brain(Node):
         pass
 
     def __generateTwist(self, msg):
-        """Processes the distance from center and publish."""
+        """Processes the distance from center and publish Twist based on state."""
         if self.state == State.START:
             twist = self.__startTwist(msg)
         elif self.state == State.ROAD:
@@ -41,27 +41,26 @@ class Brain(Node):
             twist = self.__startTwist(msg)
         elif self.state == State.P_LOT:
             twist = self.__parkinglotTwist(msg)
+        elif self.state == State.GRAPH:
+            twist = self.__graphTwist(msg)
+        elif self.state == State.END:
+            twist = self.__endTwist(msg)
         else:
-            twist = None
+            print('This should never happen...')
+            return
 
-        
-        # Set twist message here:
-        twist.linear = Vector3(0, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
-
-        if twist is not None:
-            if verbose:
-                print('Linear: (%f, %f, %f)' %(twist.linear.x,
-                                               twist.linear.y
-                                               twist.linear.z))
-                print('Angular: (%f, %f, %f)\n' %(twist.angular.x,
-                                                  twist.angular.y
-                                                  twist.angular.z))
-            self.twist.publish(twist)
+        if verbose:
+            print('Linear: (%f, %f, %f)' %(twist.linear.x,
+                                           twist.linear.y
+                                           twist.linear.z))
+            print('Angular: (%f, %f, %f)\n' %(twist.angular.x,
+                                              twist.angular.y
+                                              twist.angular.z))
+        self.twist.publish(twist)
 
     def __startTwist(self, msg):
         twist = Twist()
-        twist.linear = Vector3(0, 0, 0)
+        twist.linear = Vector3(255, 0, 0)
         twist.angular = Vector3(0, 0, 0)
         return twist
 
@@ -72,6 +71,19 @@ class Brain(Node):
         return twist
 
     def __parkinglotTwist(self, msg):
+        twist = Twist()
+        twist.linear = Vector3(0, 0, 0)
+        twist.angular = Vector3(0, 0, 0)
+        return twist
+
+    def __graphTwist(self, msg):
+        twist = Twist()
+        twist.linear = Vector3(0, 0, 0)
+        twist.angular = Vector3(0, 0, 0)
+        return twist
+
+    def __endTwist(self, msg):
+        """In our end-goal state, stop the robot."""
         twist = Twist()
         twist.linear = Vector3(0, 0, 0)
         twist.angular = Vector3(0, 0, 0)

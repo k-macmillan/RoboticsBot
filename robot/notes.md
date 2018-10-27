@@ -25,6 +25,7 @@ in its local reference frame, and to set the left and right wheel speeds appropr
 Listens to the Camera node to determine what state the robot is in, and responds accordingly.
 * Interpret state based on camera
 * Act based on state
+1. Twist message to wheels
 
 ## States
 
