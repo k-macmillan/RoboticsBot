@@ -32,8 +32,7 @@ class Wheels(Node):
 
     def __publishWheels(self, left, right):
         if self.verbose:
-            print('Left: ', left)
-            print('Right: ', right)
+            print('Left: %d \tRight: %d', %(left, right))
         msg = Int32()
         msg.data = left
         self.left_pub.publish(msg)

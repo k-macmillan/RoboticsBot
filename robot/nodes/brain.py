@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
 from __future__ import print_function
 import rospy as ros
-from geometry_msgs.msg import Twist
+from std_msgs.msg import Float32
+from geometry_msgs.msg import Twist, Vector3
 
 from robot.nodes import Node
 from robot.common import WHEEL_TWIST, State
@@ -19,8 +20,20 @@ class Brain(Node):
                                    Twist,
                                    queue_size=10)
 
-        #ros.Subscriber(WHEEL_TWIST, Twist, self.__generateTwist)
+        ros.Subscriber(CAM_CENTER_DIST, Float32, self.__generateTwist)
 
     def __generateTwist(self, msg):
-        """Processes the Twist message and sends that to the publish method."""
-        pass
+        """Processes the distance from center and publish."""
+        twist = Twist()
+        # Set twist message here:
+        twist.linear = Vector3(0, 0, 0)
+        twist.angular = Vector3(0, 0, 0)
+
+        if verbose:
+            print('Linear: (%f, %f, %f)' %(twist.linear.x,
+                                           twist.linear.y
+                                           twist.linear.z))
+            print('Angular: (%f, %f, %f)\n' %(twist.angular.x,
+                                              twist.angular.y
+                                              twist.angular.z))
+        self.twist.publish(twist)

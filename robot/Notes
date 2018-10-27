@@ -4,9 +4,11 @@ Camera  - Topic2: Identify stop location
 Camera  - Topic2: Identify parking lot exit
 Camera  - Topic2: Identify obstacles (parking lot)
 Camera  - Topic2: Identify intersections (graph section)
+Camera  - HSV tuner "program" for lighting
 
 Wheels  - Topic1: Take in Twist & publish wheel speed
 
-Brain   - 
+Brain   - Interpret state based on camera
+Brain   - Act based on state
 
 States  - Road, parking lot, etc.
