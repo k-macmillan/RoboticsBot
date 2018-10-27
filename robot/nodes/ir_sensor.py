@@ -8,17 +8,19 @@ import matplotlib.pyplot as plt
 import rospy as ros
 from std_msgs.msg import Int32
 
-from node_manager import Node
+from robot.nodes import Node
 
 
 class IrSpammer(Node):
     """A ROS Node to spam IR data to the console. For testing purposes only."""
+
     def __init__(self):
-        """A basically useless ROS Node to spam the console with IR sensor data."""
+        """Create a basically useless ROS Node to spam the console with IR sensor data."""
         super(IrSpammer, self).__init__(name='IrSpammer')
         ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
 
-    def callback(self, msg):
+    @staticmethod
+    def callback(msg):
         """Receives an IR sensor reading and prints it to the screen."""
         print('IR:', msg.data)
 
@@ -30,8 +32,9 @@ class IrPlotter(Node):
     worst that will happen if you don't is that a few exceptions will be raised
     in non-deterministic places.
     """
+
     def __init__(self, history=800):
-        """Creates an IrPlotter ROS Node to live plot IR sensor data."""
+        """Create an IrPlotter ROS Node to live plot IR sensor data."""
         super(IrPlotter, self).__init__(name='IrPlotter')
         ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
         self.queue = mp.Queue()
@@ -39,14 +42,12 @@ class IrPlotter(Node):
         self.history = history
 
     def callback(self, msg):
-        """Receives IR distance data from the Geekbot IR sensor"""
+        """Receives IR distance data from the Geekbot IR sensor."""
         # Pass the received value to the plotter child process.
         self.queue.put(msg.data, block=False)
 
     def plotter(self):
-        """The body of the plotter child process to live plot a time series
-        with matplotlib.
-        """
+        """Child process to plot live data."""
         ys = deque([], maxlen=self.history)
         fig, ax = plt.subplots()
         plt.ion()
@@ -69,7 +70,7 @@ class IrPlotter(Node):
             plt.pause(0.0001)
 
     def run(self):
-        """Runs this node in a new process."""
+        """Run this node in a new process."""
         # Create the child [process] here, because children must be created by
         # their parents, and not by the NodeManager's process.
         self.child = mp.Process(target=self.plotter)
@@ -80,6 +81,6 @@ class IrPlotter(Node):
         super(IrPlotter, self).run()
 
     def stop(self):
-        """Shutdown signal handler to clean up after ourselves"""
+        """Shutdown signal handler to clean up after ourselves."""
         if self.child.is_alive():
             self.child.terminate()
