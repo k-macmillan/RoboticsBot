@@ -11,25 +11,29 @@ from robot.common import *
 class Wheels(Node):
     """A ROS Node to handle the wheels of our robot."""
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         """Initializes publishers and subsribers"""
         super(Wheels, self).__init__(name='Wheels')
-        self.left_pub = rospy.Publisher(WHEEL_LEFT,
-                                        Int32,
-                                        queue_size=10)
-        self.right_pub = rospy.Publisher(WHEEL_RIGHT,
-                                         Int32,
-                                         queue_size=10)
+        self.verbose = verbose
+        self.left_pub = ros.Publisher(WHEEL_LEFT,
+                                      Int32,
+                                      queue_size=10)
+        self.right_pub = ros.Publisher(WHEEL_RIGHT,
+                                       Int32,
+                                       queue_size=10)
 
-        rospy.Subscriber(WHEEL_TWIST,
-                         Twist,
-                         self.__processTwist)
+        ros.Subscriber(WHEEL_TWIST,
+                       Twist,
+                       self.__processTwist)
 
     def __processTwist(self, msg):
         """Processes the Twist message and sends that to the publish method."""
         self.__publishWheels(0, 0)
 
     def __publishWheels(self, left, right):
+        if self.verbose:
+            print('Left: ', left)
+            print('Right: ', right)
         msg = Int32()
         msg.data = left
         self.left_pub.publish(msg)

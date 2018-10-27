@@ -1,0 +1,12 @@
+Notes:
+Camera  - Topic1: Difference from lane center
+Camera  - Topic2: Identify stop location
+Camera  - Topic2: Identify parking lot exit
+Camera  - Topic2: Identify obstacles (parking lot)
+Camera  - Topic2: Identify intersections (graph section)
+
+Wheels  - Topic1: Take in Twist & publish wheel speed
+
+Brain   - 
+
+States  - Road, parking lot, etc.
