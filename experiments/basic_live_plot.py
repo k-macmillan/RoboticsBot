@@ -11,8 +11,9 @@ from std_msgs.msg import Int32
 
 class IrPlotter(object):
     """Live plots the data streamed from the Geekbot IR sensor."""
+
     def __init__(self, history=800):
-        """Registers IrPlotter node with ROS master."""
+        """Register IrPlotter node with ROS master."""
         ros.init_node('IrPlotter', anonymous=True, disable_signals=True)
         ros.on_shutdown(self.stop)
         self.subscriber = ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
@@ -21,13 +22,11 @@ class IrPlotter(object):
         self.job = mp.Process(target=self.plotter)
 
     def callback(self, msg):
-        """Receives IR distance data from the Geekbot IR sensor"""
+        """Receive IR distance data from the Geekbot IR sensor."""
         self.queue.put(msg.data, block=False)
 
     def plotter(self):
-        """The body of the plotter child process to live plot a time series
-        with matplotlib.
-        """
+        """Child process to live plot a time series with matplotlib."""
         ys = deque([], maxlen=self.history)
         fig, ax = plt.subplots()
         plt.ion()
@@ -50,12 +49,12 @@ class IrPlotter(object):
             plt.pause(0.0001)
 
     def start(self):
-        """Runs this node"""
+        """Run this node."""
         self.job.start()
         print('Starting plotter process with PID', self.job.pid)
 
     def stop(self):
-        """Shutdown signal handler to clean up after ourselves"""
+        """Handle the shutdown signal to clean up after ourselves."""
         print('Terminating plotter process with PID', self.job.pid)
         self.job.terminate()
 

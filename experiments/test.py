@@ -1,9 +1,12 @@
 #!/usr/bin/env python2
-from node_manager import NodeManager
-from nodes import IrSpammer, IrPlotter
+import sys
+sys.path.append('..')
+
+from robot.nodes import IrPlotter, IrSpammer, NodeManager
 
 
 def main():
+    """Show the NodeManager in action."""
     manager = NodeManager()
 
     manager.add_node(IrSpammer())

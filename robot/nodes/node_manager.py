@@ -13,7 +13,7 @@ class Node(multiprocessing.Process):
     """
 
     def __init__(self, name):
-        """Creates and runs a ROS node with the given name.
+        """Create and runs a ROS node with the given name.
 
         NOTE: This method gets run in the main process.
         """
@@ -21,8 +21,10 @@ class Node(multiprocessing.Process):
         self.__name = name
 
     def run(self):
-        """Runs the ROS Node. If a derived class overrides this method, the
-        derived class *must* call its parent's blocking start() method.
+        """Run the ROS Node.
+
+        If a derived class overrides this method, the derived class *must* call
+        its parent's blocking start() method.
 
         NOTE: This method gets run in the created process.
         """
@@ -50,14 +52,16 @@ class NodeManager(object):
           Note however, that ROS launchfiles solve this problem, but I have no
           desire to learn yet another new thing.
     """
+
     def __init__(self):
-        """Creates a NodeManager for running ROS nodes."""
+        """Create a NodeManager for running ROS nodes."""
         self.jobs = []
 
     def add_node(self, node):
         """Add a node of the given type to the NodeManager.
 
         :param node: An instance of some subclass of Node.
+        :type node: robot.nodes.Node
         """
         # Add a the process to the list of jobs.
         self.jobs.append(node)
