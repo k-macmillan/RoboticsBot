@@ -12,6 +12,7 @@ from sensor_msgs.msg import CompressedImage
 from robot.nodes import Node
 
 
+# TODO: Remove the TKinter GUI because it doesn't play nice with the NodeManager
 class Camera(Node):
     """A ROS node to receive and process the compressed camera feed from the robot."""
 
@@ -30,11 +31,20 @@ class Camera(Node):
         self.h_sat = 0
         self.h_val = 0
 
+        self.tk_init()
+
         # The minimum area for a contour
         self.min_area = 50 * 50
 
+    def stop(self):
+        """Signal handler to stop the ROS node."""
+        cv2.destroyAllWindows()
+
+    def run(self):
+        """Run the ROS node in a separate process."""
         # Initialize and start the TKinter window for updating the HSV mask.
         self.tk_init()
+        super(Camera, self).run()
 
     def callback(self, msg):
         """Receive a compressed frame from the camera.
@@ -91,7 +101,7 @@ class Camera(Node):
         """
         temp = cv2.erode(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)), iterations=1)
         # TODO: Pass mask or temp?!
-        temp = cv2.dilate(temp, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)), iterations=1)
+        temp = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)), iterations=1)
         return temp
 
     def largest_contour(self, contours):
