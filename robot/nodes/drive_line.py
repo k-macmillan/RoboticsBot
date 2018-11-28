@@ -1,15 +1,16 @@
 #!/usr/bin/env python2
-from __future__ import print_function
+from __future__ import division, print_function
 
 
-class DriveLine():
-    """Simple singleton to handle wheel speeds while line following"""
+class DriveLine(object):
+    """Simple singleton to handle wheel speeds while line following."""
+
     Kp = 1
     Ki = 0.001    # Not sure we want this
     Kd = 1.2
 
     def __init__(self, r, L, verbose=False):
-        """Initializes variables for this singleton"""
+        """Initialize variables for this singleton."""
         self.verbose = verbose
         self.r = r
         self.r_inv = 1 / r
@@ -19,7 +20,7 @@ class DriveLine():
         self.U = 0
 
     def calcWheelSpeeds(self, w1, w2, difference):
-        """Calculates new wheel speeds based on velocity and error"""
+        """Calculate new wheel speeds based on velocity and error."""
         self.__calcPID(difference)
         return self.__calcWheelSpeeds(self.__vConstant(w1, w2))
 
@@ -27,7 +28,7 @@ class DriveLine():
         return self.r * (w1 + w2) / 2.0
 
     def __calcPID(self, error):
-        """Calculates PID and updates error 1 & 2, updates U"""
+        """Calculate PID and updates error 1 & 2, updates U."""
         P = self.Kp * (error - self.e_1)
         I = self.Ki * (error + self.e_1)
         D = self.Kd * (error - 2 * self.e_1 + self.e_2)
@@ -40,7 +41,7 @@ class DriveLine():
             print('U:   {}'.format(self.U))
 
     def __calcWheelSpeeds(self, vel):
-        """Calculates & returns w1 and w2"""
+        """Calculate & returns w1 and w2."""
         w1, w2 = (self.r_inv * (vel - self.L * self.U),
                   self.r_inv * (vel + self.L * self.U))
         if self.verbose:
