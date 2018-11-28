@@ -9,7 +9,10 @@ CAM_OBJECT      = '/geekbot/camera_object'
 
 class State(Enum):
     START = 0
-    ROAD = 1
-    P_LOT = 2
-    GRAPH = 3
-    END = 4
+    ON_PATH = 1
+    STOPPED = 2
+    CANCER_SEARCH = 3
+    CANCER_DESTROY = 4
+    ORIENT = 5
+    GRAPH = 6
+    END = 7
