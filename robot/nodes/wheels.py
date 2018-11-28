@@ -1,18 +1,18 @@
-#!/usr/bin/env python2
-from __future__ import print_function
-import rospy as ros
-from std_msgs.msg import Int32
-from geometry_msgs.msg import Twist
+from __future__ import division, print_function
 
+import rospy as ros
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Int32
+
+from robot.common import WHEEL_LEFT, WHEEL_RIGHT, WHEEL_TWIST
 from robot.nodes import Node
-from robot.common import *
 
 
 class Wheels(Node):
     """A ROS Node to handle the wheels of our robot."""
 
     def __init__(self, verbose=False):
-        """Initializes publishers and subsribers"""
+        """Initializes publishers and subscribers"""
         super(Wheels, self).__init__(name='Wheels')
         self.verbose = verbose
         self.left_pub = ros.Publisher(WHEEL_LEFT,
@@ -32,7 +32,7 @@ class Wheels(Node):
 
     def __publishWheels(self, left, right):
         if self.verbose:
-            print('Left: %d \tRight: %d', %(left, right))
+            print('Left: %d \tRight: %d' % (left, right))
         msg = Int32()
         msg.data = left
         self.left_pub.publish(msg)

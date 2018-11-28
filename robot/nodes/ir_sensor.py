@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+from __future__ import division, print_function
 
 import multiprocessing as mp
 from collections import deque

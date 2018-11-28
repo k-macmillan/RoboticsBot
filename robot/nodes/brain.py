@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
-from __future__ import print_function
-import rospy as ros
-from std_msgs.msg import Float32, Int32
-from geometry_msgs.msg import Twist, Vector3
+from __future__ import division, print_function
 
+import rospy as ros
+from geometry_msgs.msg import Twist, Vector3
+from std_msgs.msg import Float32, String
+
+from robot.common import LANE_CENTROID, POINT_OF_INTEREST, WHEEL_TWIST, State
 from robot.nodes import Node
-from robot.common import WHEEL_TWIST, State
 
 
 class Brain(Node):
@@ -20,8 +20,8 @@ class Brain(Node):
                                    Twist,
                                    queue_size=10)
 
-        ros.Subscriber(CAM_CENTER_DIST, Float32, self.__generateTwist)
-        ros.Subscriber(CAM_OBJECT, Int32, self.__handleObject)
+        ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
+        ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
 
     def __handleObject(self, msg):
         """Reads in object"""
@@ -49,12 +49,12 @@ class Brain(Node):
             print('This should never happen...')
             return
 
-        if verbose:
+        if self.verbose:
             print('Linear: (%f, %f, %f)' %(twist.linear.x,
-                                           twist.linear.y
+                                           twist.linear.y,
                                            twist.linear.z))
             print('Angular: (%f, %f, %f)\n' %(twist.angular.x,
-                                              twist.angular.y
+                                              twist.angular.y,
                                               twist.angular.z))
         self.twist.publish(twist)
 
