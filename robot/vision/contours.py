@@ -13,12 +13,13 @@ from robot.nodes import Node
 
 
 # TODO: Remove the TKinter GUI because it doesn't play nice with the NodeManager
-class Camera(Node):
-    """A ROS node to receive and process the compressed camera feed from the robot."""
+class ContourDetector(Node):
+    """An OOP-ified version of the example contour detection code provided
+    as an example of how to interact with OpenCV from ROS."""
 
     def __init__(self, compressed_topic='/geekbot/webcam/image_raw/compressed'):
-        """Create a Camera ROS node."""
-        super(Camera, self).__init__(name='Camera')
+        """Create a ContourDetector ROS node."""
+        super(ContourDetector, self).__init__(name='ContourDetector')
         ros.Subscriber(compressed_topic, CompressedImage, self.callback)
 
         self.bridge = CvBridge()
@@ -44,7 +45,7 @@ class Camera(Node):
         """Run the ROS node in a separate process."""
         # Initialize and start the TKinter window for updating the HSV mask.
         self.tk_init()
-        super(Camera, self).run()
+        super(ContourDetector, self).run()
 
     def callback(self, msg):
         """Receive a compressed frame from the camera.

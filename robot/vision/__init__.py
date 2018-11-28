@@ -2,4 +2,4 @@
 
 from .hsv import HSV
 from .yellow_detector import YellowDetector
-from .camera import Camera
+from .contours import ContourDetector
