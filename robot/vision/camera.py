@@ -73,7 +73,7 @@ class CameraController(Node):
         # Convert BGR to HSV.
         hsv_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2HSV)
 
-        if self.state == State.ON_PATH:
+        if self.state == State.ON_PATH or self.state == State.START:
             # TODO: Implement a LaneCamera and a StoplightCamera. The LaneCamera
             # will find the lane's position in the current field of view. The
             # StoplightCamera will notify us if we are directly in front of a
