@@ -6,11 +6,17 @@ class DriveLine(object):
     """Simple singleton to handle wheel speeds while line following."""
 
     Kp = 1
-    Ki = 0.001    # Not sure we want this
+    Ki = 0.001  # Not sure we want this
     Kd = 1.2
 
     def __init__(self, r, L, verbose=False):
-        """Initialize variables for this singleton."""
+        """Initialize variables for this singleton.
+
+        :param r: The robot wheel radius.
+        :param L: The robot half-axle length.
+        :param verbose: Should the DriveLine path scrape together enough passion
+        to notify us of basic information? Defaults to False.
+        """
         self.verbose = verbose
         self.r = r
         self.r_inv = 1 / r
@@ -25,6 +31,11 @@ class DriveLine(object):
         return self.__calcWheelSpeeds(self.__vConstant(w1, w2))
 
     def __vConstant(self, w1, w2):
+        """Average the given wheel speeds to get the linear forward velocity.
+
+        :param w1: The left wheel speed.
+        :param w2: The right wheel speed.
+        """
         return self.r * (w1 + w2) / 2.0
 
     def __calcPID(self, error):

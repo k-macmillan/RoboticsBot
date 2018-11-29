@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 
 import rospy as ros
-from geometry_msgs.msg import Twist, Vector3
+from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32, String
 
 from robot.common import LANE_CENTROID, POINT_OF_INTEREST, WHEEL_TWIST, State
@@ -12,34 +12,44 @@ class Brain(Node):
     """A ROS Node to handle the brain of our robot."""
 
     def __init__(self, verbose=False):
-        """Initializes publishers and subsribers"""
+        """Initialize the Brain node.
+
+        :param verbose: How passionate should the Brain be?, defaults to False
+        :param verbose: bool, optional
+        """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.START
-        self.twist = ros.Publisher(WHEEL_TWIST,
-                                   Twist,
-                                   queue_size=10)
+        self.twist = ros.Publisher(WHEEL_TWIST, Twist, queue_size=10)
 
         ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
         ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
 
     def __handleObject(self, msg):
-        """Reads in object"""
+        """Handle a Point of Interest notification.
+
+        :param msg: The point of interest notification.
+        :type msg: std_msgs.msg.String
+        """
         self.__determineState()
 
     def __determineState(self):
-        """Sets state based on what objects are seen."""
+        """Determine what state the robot is in."""
         pass
 
     def __generateTwist(self, msg):
-        """Processes the distance from center and publish Twist based on state."""
+        """Process the lane centroid and control x and theta velocities.
+
+        :param msg: The lane centroid message.
+        :type msg: std_msgs.msg.Float32
+        """
         if self.state == State.START:
             twist = self.__startTwist(msg)
-        elif self.state == State.ROAD:
+        elif self.state == State.ON_PATH:
             twist = self.__roadTwist(msg)
-        elif self.state == State.ROAD:
+        elif self.state == State.ON_PATH:
             twist = self.__startTwist(msg)
-        elif self.state == State.P_LOT:
+        elif self.state == State.CANCER_DESTROY or self.state == State.CANCER_SEARCH:
             twist = self.__parkinglotTwist(msg)
         elif self.state == State.GRAPH:
             twist = self.__graphTwist(msg)
@@ -50,41 +60,73 @@ class Brain(Node):
             return
 
         if self.verbose:
-            print('Linear: (%f, %f, %f)' %(twist.linear.x,
-                                           twist.linear.y,
-                                           twist.linear.z))
-            print('Angular: (%f, %f, %f)\n' %(twist.angular.x,
-                                              twist.angular.y,
-                                              twist.angular.z))
+            print('Linear: (%f, %f, %f)' % (twist.linear.x, twist.linear.y,
+                                            twist.linear.z))
+            print('Angular: (%f, %f, %f)\n' %
+                  (twist.angular.x, twist.angular.y, twist.angular.z))
         self.twist.publish(twist)
 
     def __startTwist(self, msg):
+        """Set the local velocities in the START state.
+
+        :param msg: The lane centroid.
+        :type msg: std_msgs.msg.Float32
+        :return: The desired x and theta velocities in the local reference frame
+        :rtype: geometry_msgs.msg.Twist
+        """
         twist = Twist()
-        twist.linear = Vector3(255, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
+        twist.linear.x = 255
+        twist.angular.z = 0
         return twist
 
     def __roadTwist(self, msg):
+        """Set the local velocities in the ON_PATH state.
+
+        :param msg: The lane centroid.
+        :type msg: std_msgs.msg.Float32
+        :return: The desired x and theta velocities in the local reference frame
+        :rtype: geometry_msgs.msg.Twist
+        """
         twist = Twist()
-        twist.linear = Vector3(0, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
+        twist.linear.x = 0
+        twist.angular.z = 0
         return twist
 
     def __parkinglotTwist(self, msg):
+        """Set the local velocities in the CANCER_* states.
+
+        :param msg: The lane centroid.
+        :type msg: std_msgs.msg.Float32
+        :return: The desired x and theta velocities in the local reference frame
+        :rtype: geometry_msgs.msg.Twist
+        """
         twist = Twist()
-        twist.linear = Vector3(0, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
+        twist.linear.x = 0
+        twist.angular.z = 0
         return twist
 
     def __graphTwist(self, msg):
+        """Set the local velocities in the GRAPH state.
+
+        :param msg: The lane centroid.
+        :type msg: std_msgs.msg.Float32
+        :return: The desired x and theta velocities in the local reference frame
+        :rtype: geometry_msgs.msg.Twist
+        """
         twist = Twist()
-        twist.linear = Vector3(0, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
+        twist.linear.x = 0
+        twist.angular.z = 0
         return twist
 
     def __endTwist(self, msg):
-        """In our end-goal state, stop the robot."""
+        """Set the local velocities in the END state.
+
+        :param msg: The lane centroid.
+        :type msg: std_msgs.msg.Float32
+        :return: The desired x and theta velocities in the local reference frame
+        :rtype: geometry_msgs.msg.Twist
+        """
         twist = Twist()
-        twist.linear = Vector3(0, 0, 0)
-        twist.angular = Vector3(0, 0, 0)
+        twist.linear.x = 0
+        twist.angular.z = 0
         return twist

@@ -6,8 +6,12 @@ from robot import Robot
 def parse_args():
     """Parse robot's commandline arguments."""
     parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', '-v', action='store_true', default=False,
-                        help='Increase robot\'s volume.')
+    parser.add_argument(
+        '--verbose',
+        '-v',
+        action='store_true',
+        default=False,
+        help='Increase robot\'s volume.')
     return parser.parse_args()
 
 

@@ -17,7 +17,8 @@ class ContourDetector(Node):
     """An OOP-ified version of the example contour detection code provided
     as an example of how to interact with OpenCV from ROS."""
 
-    def __init__(self, compressed_topic='/geekbot/webcam/image_raw/compressed'):
+    def __init__(self,
+                 compressed_topic='/geekbot/webcam/image_raw/compressed'):
         """Create a ContourDetector ROS node."""
         super(ContourDetector, self).__init__(name='ContourDetector')
         ros.Subscriber(compressed_topic, CompressedImage, self.callback)
@@ -75,7 +76,8 @@ class ContourDetector(Node):
 
         # Find the biggest contour in the mask larger than the minimum.
         # Draw the contour and its centroid.
-        _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE,
+                                          cv2.CHAIN_APPROX_SIMPLE)
         if contours:
             largest = self.largest_contour(contours)
             if largest is not None:
@@ -100,9 +102,15 @@ class ContourDetector(Node):
         :param mask: The HSV image mask to denoise.
         :type mask: A boolean mask of everything between HSV bounds.
         """
-        temp = cv2.erode(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)), iterations=1)
+        temp = cv2.erode(
+            mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
         # TODO: Pass mask or temp?!
-        temp = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)), iterations=1)
+        temp = cv2.dilate(
+            mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
         return temp
 
     def largest_contour(self, contours):
@@ -131,30 +139,37 @@ class ContourDetector(Node):
         This window allows setting the HSV mask using sliders.
         """
         self.root = Tk()
-        self.window = Canvas(self.root, width=640, height=480+160, bd=10, bg='white')
+        self.window = Canvas(
+            self.root, width=640, height=480 + 160, bd=10, bg='white')
 
         Label(self.root, text="Low  Hue:").grid(column=0, row=1)
-        self.low_hue = Scale(self.root, from_=0, to=180, length=480, orient=HORIZONTAL)
+        self.low_hue = Scale(
+            self.root, from_=0, to=180, length=480, orient=HORIZONTAL)
         self.low_hue.grid(column=1, row=1)
 
         Label(self.root, text="Low  Sat:").grid(column=0, row=2)
-        self.low_sat = Scale(self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
+        self.low_sat = Scale(
+            self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
         self.low_sat.grid(column=1, row=2)
 
         Label(self.root, text="Low  Val:").grid(column=0, row=3)
-        self.low_val = Scale(self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
+        self.low_val = Scale(
+            self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
         self.low_val.grid(column=1, row=3)
 
         Label(self.root, text="High Hue:").grid(column=0, row=4)
-        self.high_hue = Scale(self.root, from_=0, to=180, length=480, orient=HORIZONTAL)
+        self.high_hue = Scale(
+            self.root, from_=0, to=180, length=480, orient=HORIZONTAL)
         self.high_hue.grid(column=1, row=4)
 
         Label(self.root, text="High Sat:").grid(column=0, row=5)
-        self.high_sat = Scale(self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
+        self.high_sat = Scale(
+            self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
         self.high_sat.grid(column=1, row=5)
 
         Label(self.root, text="High Val:").grid(column=0, row=6)
-        self.high_val = Scale(self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
+        self.high_val = Scale(
+            self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
         self.high_val.grid(column=1, row=6)
 
         # Initialize these values in case the callback gets pulled before Tk updates
