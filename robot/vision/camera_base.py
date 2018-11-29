@@ -6,13 +6,17 @@ class Camera(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, publisher):
+    def __init__(self, publisher, verbose=False):
         """Create a base Camera that publishes on the given publisher.
 
         :param publisher: The ROS publisher to publish messages with.
         :type publisher: rospy.Publisher
+        :param verbose: Should this Camera perfect the art of console spam,
+        defaults to False
+        :type verbose: bool, optional
         """
         self.publisher = publisher
+        self.verbose = verbose
 
     @abstractmethod
     def process_image(self, hsv_image):
