@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import argparse
 from robot import Robot
 
@@ -13,6 +14,7 @@ def parse_args():
 def main(args):
     """Main entry point for robot."""
     robot = Robot(verbose=args.verbose)
+    robot.start()
 
 
 if __name__ == "__main__":

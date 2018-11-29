@@ -15,10 +15,13 @@ class Robot(object):
         self.verbose = verbose
         self.nm = NodeManager()
         self.initNodes()
-        self.nm.spin()
 
     def initNodes(self):
         """Add each node to the node manager."""
         self.nm.add_node(Brain(verbose=self.verbose))
         self.nm.add_node(CameraController(CAMERA_FEED, ROBOT_STATE, verbose=self.verbose))
         self.nm.add_node(Wheels(verbose=self.verbose))
+
+    def start(self):
+        """Start the robot."""
+        self.nm.spin()
