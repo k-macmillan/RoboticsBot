@@ -4,10 +4,12 @@ import cv2
 import rospy as ros
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import CompressedImage
-from std_msgs.msg import UInt8
+from std_msgs.msg import Float32, UInt8
 
-from robot.common import State
+from robot.common import LANE_CENTROID, State
 from robot.nodes import Node
+
+from .camera_lane import LaneCamera
 
 
 class CameraController(Node):
@@ -47,6 +49,8 @@ class CameraController(Node):
         self.state = State.START
         self.bridge = CvBridge()
 
+        self.lane_camera = LaneCamera(ros.Publisher(LANE_CENTROID, Float32, queue_size=10))
+
     def image_handler(self, compressed):
         """Handle each compressed video frame.
 
@@ -69,7 +73,7 @@ class CameraController(Node):
             # will find the lane's position in the current field of view. The
             # StoplightCamera will notify is if we are directly in front of a
             # stoplight.
-            pass
+            self.lane_camera.process_image(hsv_frame)
         elif self.state == State.CANCER_SEARCH:
             # TODO: Possibly implement a CancerSearchCamera that searches for the
             # exit in the parking lot.
