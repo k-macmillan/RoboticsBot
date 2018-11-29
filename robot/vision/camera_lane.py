@@ -9,8 +9,8 @@ from .camera_base import Camera
 class LaneCamera(Camera):
     """Camera class for lane following."""
 
-    # The portion of the image we focus on. (x-slice, y-slice).
-    REGION_OF_INTEREST = (slice(0, None, None), slice(0, None, None))
+    # The portion of the image we focus on. (y-slice, x-slice).
+    REGION_OF_INTEREST = (slice(400, 480, None), slice(0, None, None))
     # How much do we blur the image
     BLUR_KERNEL = (5, 5)
     # The threshold value.
@@ -42,12 +42,12 @@ class LaneCamera(Camera):
             cy = int(M['m01'] / M['m00'])
 
             # Image center => 0.0, left border => -1.0, right border => 1.0
-            image_center = cropped.shape[0] / 2
+            image_center = cropped.shape[1] / 2
             fraction = 0.0
             if cx <= image_center:
-                fraction = -(image_center - cx) / image_center
-            else:
                 fraction = (cx - image_center) / image_center
+            else:
+                fraction = -(image_center - cx) / image_center
 
             if self.verbose:
                 print('LaneCamera: contour centroid: ({}, {})'.format(cx, cy))
@@ -64,7 +64,7 @@ class LaneCamera(Camera):
                 cropped, (cx, cy), 10, (255, 0, 0), lineType=cv2.LINE_AA)
 
             cv2.namedWindow('LaneCamera', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera', cropped)
+            cv2.imshow('LaneCamera', cv2.cvtColor(cropped, cv2.COLOR_HSV2BGR))
             cv2.waitKey(10)
         else:
             print('LaneCamera: failed to find contours.')
