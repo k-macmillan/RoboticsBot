@@ -53,8 +53,8 @@ class CameraController(Node):
         poi_publisher = ros.Publisher(POINT_OF_INTEREST, String, queue_size=10)
         lane_publisher = ros.Publisher(LANE_CENTROID, Float32, queue_size=10)
 
-        self.lane_camera = LaneCamera(lane_publisher, verbose=True)
-        self.stoplight_cam = StoplightCamera(poi_publisher)
+        self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
+        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
 
     def image_handler(self, compressed):
         """Handle each compressed video frame.
