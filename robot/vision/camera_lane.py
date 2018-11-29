@@ -63,8 +63,8 @@ class LaneCamera(Camera):
             cv2.circle(
                 cropped, (cx, cy), 10, (255, 0, 0), lineType=cv2.LINE_AA)
 
-            cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
-            cv2.imshow('Original', cropped)
+            cv2.namedWindow('LaneCamera', cv2.WINDOW_NORMAL)
+            cv2.imshow('LaneCamera', cropped)
             cv2.waitKey(10)
         else:
             print('LaneCamera: failed to find contours.')

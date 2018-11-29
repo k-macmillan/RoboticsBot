@@ -99,8 +99,8 @@ class CameraController(Node):
             # TODO: Implement a GraphCamera that identifies nodes in the graph.
             pass
 
-        cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
-        cv2.imshow('Original', bgr_frame)
+        cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
+        cv2.imshow('Camera', bgr_frame)
 
         cv2.waitKey(10)
 
