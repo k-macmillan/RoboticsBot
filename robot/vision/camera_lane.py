@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 
 import cv2
+import numpy as np
 from std_msgs.msg import Float32
 
 from .camera_base import Camera
@@ -22,8 +23,18 @@ class LaneCamera(Camera):
         """Implement lane detection and publishes the lane centroid."""
         # Crop the image to deal only with whatever is directly in front of us.
         cropped = hsv_image[self.REGION_OF_INTEREST]
+
+        white_low = np.array([0, 0, 200])
+        white_high = np.array([0, 0, 255])
+
+        mask = cv2.inRange(cropped, white_low, white_high)
+        masked = cv2.bitwise_and(cropped, cropped, mask)
+
+        cv2.namedWindow('LaneCamera-mask', cv2.WINDOW_NORMAL)
+        cv2.imshow('LaneCamera-mask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+
         # Convert to grayscale.
-        grayscale = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+        grayscale = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
         # Blur the image before finding contours.
         blurred = cv2.GaussianBlur(grayscale, self.BLUR_KERNEL, 0)
         # Threshold the grays.
@@ -63,8 +74,8 @@ class LaneCamera(Camera):
             cv2.circle(
                 cropped, (cx, cy), 10, (255, 0, 0), lineType=cv2.LINE_AA)
 
-            cv2.namedWindow('LaneCamera', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera', cv2.cvtColor(cropped, cv2.COLOR_HSV2BGR))
+            cv2.namedWindow('LaneCamera-centroid', cv2.WINDOW_NORMAL)
+            cv2.imshow('LaneCamera-centroid', cv2.cvtColor(cropped, cv2.COLOR_HSV2BGR))
             cv2.waitKey(10)
         else:
             print('LaneCamera: failed to find contours.')
