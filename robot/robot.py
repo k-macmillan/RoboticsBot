@@ -21,6 +21,8 @@ class Robot(object):
         # self.nm.add_node(Brain(verbose=self.verbose))
         self.nm.add_node(
             CameraController(CAMERA_FEED, ROBOT_STATE, verbose=self.verbose))
+        self.nm.add_node(Brain())
+        self.nm.add_node(Wheels())
         # self.nm.add_node(Wheels(verbose=self.verbose))
 
     def start(self):

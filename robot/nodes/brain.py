@@ -1,11 +1,10 @@
 from __future__ import division, print_function
 
 import rospy as ros
-from geometry_msgs.msg import Twist
-from std_msgs.msg import Float32, String
+from std_msgs.msg import Float32, String, Float32MultiArray
 
 from robot.common import LANE_CENTROID, POINT_OF_INTEREST, WHEEL_TWIST, State
-from robot.nodes import Node
+from robot.nodes import Node, DriveLine
 
 
 class Brain(Node):
@@ -20,7 +19,8 @@ class Brain(Node):
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.START
-        self.twist = ros.Publisher(WHEEL_TWIST, Twist, queue_size=10)
+        self.twist = ros.Publisher(WHEEL_TWIST, Float32MultiArray, queue_size=10)
+        self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
 
         ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
         ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
@@ -44,8 +44,16 @@ class Brain(Node):
         :type msg: std_msgs.msg.Float32
         """
         if self.state == State.START:
-            twist = self.__startTwist(msg)
+
+
+            # Adjust based on camera
+            wheels = Float32MultiArray()
+            w1, w2 = self.DL.calcWheelSpeeds(self.w1, self.w2, msg)
+            wheels.data = [w1, w2]
+            self.twist.publish(wheels)
+            return
         elif self.state == State.ON_PATH:
+
             twist = self.__roadTwist(msg)
         elif self.state == State.ON_PATH:
             twist = self.__startTwist(msg)
