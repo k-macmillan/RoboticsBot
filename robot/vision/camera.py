@@ -66,7 +66,8 @@ class CameraController(Node):
         """
         try:
             # Decompress the message into an openCV frame.
-            bgr_frame = self.bridge.compressed_imgmsg_to_cv2(compressed, 'bgr8')
+            bgr_frame = self.bridge.compressed_imgmsg_to_cv2(
+                compressed, 'bgr8')
         except CvBridgeError as e:
             print(e)
 
@@ -99,9 +100,9 @@ class CameraController(Node):
             # TODO: Implement a GraphCamera that identifies nodes in the graph.
             pass
 
-        cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
-        cv2.imshow('Camera', bgr_frame)
-
+        if self.verbose:
+            cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
+            cv2.imshow('Camera', bgr_frame)
         cv2.waitKey(10)
 
     def state_handler(self, state):
