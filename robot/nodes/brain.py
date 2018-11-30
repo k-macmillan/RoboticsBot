@@ -21,6 +21,8 @@ class Brain(Node):
         self.state = State.START
         self.twist = ros.Publisher(WHEEL_TWIST, Float32MultiArray, queue_size=10)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
+        self.w1 = 5.0
+        self.w2 = 5.0
 
         ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
         ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
@@ -48,7 +50,7 @@ class Brain(Node):
 
             # Adjust based on camera
             wheels = Float32MultiArray()
-            w1, w2 = self.DL.calcWheelSpeeds(self.w1, self.w2, msg)
+            w1, w2 = self.DL.calcWheelSpeeds(self.w1, self.w2, msg.data)
             wheels.data = [w1, w2]
             self.twist.publish(wheels)
             return
