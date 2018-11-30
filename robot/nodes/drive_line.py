@@ -53,8 +53,8 @@ class DriveLine(object):
 
     def __calcWheelSpeeds(self, vel):
         """Calculate & returns w1 and w2."""
-        w1, w2 = (self.r_inv * (vel - self.L * self.U),
-                  self.r_inv * (vel + self.L * self.U))
+        w1, w2 = (self.r_inv * (vel + self.L * self.U),
+                  self.r_inv * (vel - self.L * self.U))
         if self.verbose:
             print('Left Wheel:  {}'.format(w1))
             print('Right Wheel: {}'.format(w2))
