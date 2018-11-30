@@ -21,8 +21,8 @@ class Brain(Node):
         self.state = State.START
         self.twist = ros.Publisher(WHEEL_TWIST, Float32MultiArray, queue_size=10)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
-        self.w1 = 5.0
-        self.w2 = 5.0
+        self.w1 = 1.0
+        self.w2 = 1.0
 
         ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
         ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
