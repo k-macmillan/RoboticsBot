@@ -5,9 +5,9 @@ from __future__ import division, print_function
 class DriveLine(object):
     """Simple singleton to handle wheel speeds while line following."""
 
-    Kp = 0.4 * 5
+    Kp = 0.4 * 10
     Ki = 0
-    Kd = 0.1 * 5
+    Kd = 0.1 * 10
 
     def __init__(self, r, L, verbose=False):
         """Initialize variables for this singleton.
