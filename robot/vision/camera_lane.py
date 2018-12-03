@@ -34,7 +34,6 @@ class LaneCamera(Camera):
         masked = cv2.bitwise_and(cropped, cropped, mask=mask)
 
         if self.verbose:
-            cv2.namedWindow('LaneCamera-mask', cv2.WINDOW_NORMAL)
             cv2.imshow('LaneCamera-mask',
                        cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
 
@@ -47,7 +46,6 @@ class LaneCamera(Camera):
                                   cv2.THRESH_BINARY)
 
         if self.verbose:
-            cv2.namedWindow('LaneCamera-thresh', cv2.WINDOW_NORMAL)
             cv2.imshow('LaneCamera-thresh', thresh)
 
         # Find contours in the ROI.
@@ -90,6 +88,5 @@ class LaneCamera(Camera):
             print('LaneCamera: failed to find contours.')
 
         if self.verbose:
-            cv2.namedWindow('LaneCamera-centroid', cv2.WINDOW_NORMAL)
             cv2.imshow('LaneCamera-centroid',
                        cv2.cvtColor(cropped, cv2.COLOR_HSV2BGR))
