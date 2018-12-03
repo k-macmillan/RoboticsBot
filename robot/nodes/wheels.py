@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 
 import rospy as ros
-from std_msgs.msg import Int32, Float32, Float32MultiArray
+from std_msgs.msg import Int32, Float32MultiArray
 
 from robot.common import WHEEL_LEFT, WHEEL_RIGHT, WHEEL_TWIST
 from robot.nodes import Node
@@ -26,7 +26,7 @@ class Wheels(Node):
         self.__publishWheels(msg.data[0], msg.data[1])
 
     def __publishWheels(self, left, right):
-        """Publish the left hand right wheel speeds."""        
+        """Publish the left hand right wheel speeds."""
         msg = Int32()
         upper = 10.0  # Maximum wheel speed coming from left/right
         diff = 0
