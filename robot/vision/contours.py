@@ -21,7 +21,8 @@ class ContourDetector(Node):
                  compressed_topic='/geekbot/webcam/image_raw/compressed'):
         """Create a ContourDetector ROS node."""
         super(ContourDetector, self).__init__(name='ContourDetector')
-        ros.Subscriber(compressed_topic, CompressedImage, self.callback)
+
+        self.compressed_topic = compressed_topic
 
         self.bridge = CvBridge()
 
@@ -42,11 +43,11 @@ class ContourDetector(Node):
         """Signal handler to stop the ROS node."""
         cv2.destroyAllWindows()
 
-    def run(self):
+    def init_node(self):
         """Run the ROS node in a separate process."""
+        ros.Subscriber(self.compressed_topic, CompressedImage, self.callback)
         # Initialize and start the TKinter window for updating the HSV mask.
         self.tk_init()
-        super(ContourDetector, self).run()
 
     def callback(self, msg):
         """Receive a compressed frame from the camera.

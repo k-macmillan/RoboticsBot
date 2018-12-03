@@ -24,6 +24,8 @@ class Brain(Node):
         self.w1 = 5.0
         self.w2 = 5.0
 
+    def init_node(self):
+        """Perform custom Node initialization."""
         ros.Subscriber(LANE_CENTROID, Float32, self.__generateTwist)
         ros.Subscriber(POINT_OF_INTEREST, String, self.__handleObject)
 

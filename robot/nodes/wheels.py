@@ -17,6 +17,8 @@ class Wheels(Node):
         self.left_pub = ros.Publisher(WHEEL_LEFT, Int32, queue_size=10)
         self.right_pub = ros.Publisher(WHEEL_RIGHT, Int32, queue_size=10)
 
+    def init_node(self):
+        """Perform custom Node initialization."""
         ros.Subscriber(WHEEL_TWIST, Float32MultiArray, self.__processTwist)
 
     def __processTwist(self, msg):

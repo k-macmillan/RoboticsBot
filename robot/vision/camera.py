@@ -43,8 +43,9 @@ class CameraController(Node):
         :type verbose: bool
         """
         super(CameraController, self).__init__(name='CameraController')
-        ros.Subscriber(camera_topic, CompressedImage, self.image_handler)
-        ros.Subscriber(state_topic, UInt8, self.state_handler)
+
+        self.camera_topic = camera_topic
+        self.state_topic = state_topic
 
         self.verbose = verbose
         self.state = State.START
@@ -55,6 +56,13 @@ class CameraController(Node):
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
+
+    def init_node(self):
+        """Perform custom Node initialization."""
+        # We only want the subscribers running in the Node's process, not the
+        # parent's too...
+        ros.Subscriber(self.camera_topic, CompressedImage, self.image_handler)
+        ros.Subscriber(self.state_topic, UInt8, self.state_handler)
 
     def image_handler(self, compressed):
         """Handle each compressed video frame.
@@ -101,9 +109,8 @@ class CameraController(Node):
             pass
 
         if self.verbose:
-            cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
             cv2.imshow('Camera', bgr_frame)
-        cv2.waitKey(10)
+            cv2.waitKey(10)
 
     def state_handler(self, state):
         """Handle each state update.
@@ -115,3 +122,9 @@ class CameraController(Node):
         if self.verbose:
             print('Receiving state update', self.state, '->', state)
         self.state = state
+
+    def stop(self):
+        """Destroy any open OpenCV windows before terminating this node."""
+        if self.verbose:
+            cv2.destroyAllWindows()
+        super(CameraController, self).stop()

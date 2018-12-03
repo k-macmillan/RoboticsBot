@@ -23,16 +23,32 @@ class Node(multiprocessing.Process):
     def run(self):
         """Run the ROS Node.
 
-        If a derived class overrides this method, the derived class *must* call
-        its parent's blocking start() method.
-
+        NOTE: This method should *not* be overridden by a derived class. If a
+              derived class wishes to customize the Node initialization process,
+              it should override the init_node method.
         NOTE: This method gets run in the created process.
+        """
+        # Initialize this node before spinning.
+        self.__init_node()
+
+        # Immediately begin spinning this Node.
+        ros.spin()
+
+    def __init_node(self):
+        """Perform initialization common to every Node.
+
+        If a derived class wishes to customize the initialization process, it
+        can override the init_node() method.
         """
         ros.init_node(self.__name, anonymous=True, disable_signals=False)
         # Set this node's shutdown signal handler.
         ros.on_shutdown(self.stop)
-        # Immediately begin spinning this Node.
-        ros.spin()
+        # Allow derived classes to insert whatever the hell before spinning.
+        self.init_node()
+
+    def init_node(self):
+        """Perform custom Node initialization."""
+        pass
 
     def stop(self):
         """Signal handler to stop the ROS Node.

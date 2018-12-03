@@ -16,6 +16,9 @@ class IrSpammer(Node):
     def __init__(self):
         """Create a basically useless ROS Node to spam the console with IR sensor data."""
         super(IrSpammer, self).__init__(name='IrSpammer')
+
+    def init_node(self):
+        """Perform custom Node initialization."""
         ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
 
     @staticmethod
@@ -35,10 +38,13 @@ class IrPlotter(Node):
     def __init__(self, history=800):
         """Create an IrPlotter ROS Node to live plot IR sensor data."""
         super(IrPlotter, self).__init__(name='IrPlotter')
-        ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
         self.queue = mp.Queue()
         self.child = None
         self.history = history
+
+    def init_node(self):
+        """Perform custom Node initialization."""
+        ros.Subscriber('/geekbot/ir_cm', Int32, self.callback)
 
     def callback(self, msg):
         """Receives IR distance data from the Geekbot IR sensor."""
