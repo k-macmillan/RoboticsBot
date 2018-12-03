@@ -26,14 +26,23 @@ class Wheels(Node):
         self.__publishWheels(msg.data[0], msg.data[1])
 
     def __publishWheels(self, left, right):
-        """Publish the left hand right wheel speeds."""
-        if self.verbose:
-            print('Left: %d \tRight: %d' % (left, right))
+        """Publish the left hand right wheel speeds."""        
         msg = Int32()
         upper = 10.0  # Maximum wheel speed coming from left/right
-        msg.data = int((left / upper) * 255)
+        diff = 0
+        if left > 10:
+            diff = left % upper
+        if right > 10:
+            diff = right % upper
+
+        left -= diff
+        right -= diff
+        if self.verbose:
+            print('Left: %d \tRight: %d' % (left, right))
+
+        msg.data = int(left * 100)
         self.left_pub.publish(msg)
-        msg.data = int((right / upper) * 255)
+        msg.data = int(right * 100)
         self.right_pub.publish(msg)
 
     def stop(self):
