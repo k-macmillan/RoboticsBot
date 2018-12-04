@@ -14,17 +14,14 @@ class Wheels(Node):
         """Initialize the ROS Node."""
         super(Wheels, self).__init__(name='Wheels')
         self.verbose = verbose
-        self.left_pub = ros.Publisher(TOPIC['WHEEL_LEFT'],
-                                      Int32,
-                                      queue_size=10)
-        self.right_pub = ros.Publisher(TOPIC['WHEEL_RIGHT'],
-                                       Int32,
-                                       queue_size=10)
+        self.left_pub = ros.Publisher(
+            TOPIC['WHEEL_LEFT'], Int32, queue_size=10)
+        self.right_pub = ros.Publisher(
+            TOPIC['WHEEL_RIGHT'], Int32, queue_size=10)
 
     def init_node(self):
         """Perform custom Node initialization."""
-        ros.Subscriber(TOPIC['WHEEL_TWIST'],
-                       Float32MultiArray,
+        ros.Subscriber(TOPIC['WHEEL_TWIST'], Float32MultiArray,
                        self.__processTwist)
 
     def __processTwist(self, msg):

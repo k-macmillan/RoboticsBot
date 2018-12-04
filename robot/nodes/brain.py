@@ -39,7 +39,9 @@ class Brain(Node):
                        self.__determineState)
 
     def __determineState(self, msg):
-        """Handle a Point of Interest notification. Determines state
+        """Handle a Point of Interest notification.
+
+        This determines the robot's current state.
 
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
@@ -61,9 +63,10 @@ class Brain(Node):
         self.wheel_speeds.publish(wheels)
 
     def __stateHandler(self, error):
-        """ Handles the current state of our robot. Returns wheel velocities.
-            Unfortunately this is spaghetti code. It was that or one long, ugly
-            if/elif branch with sub if/elif branches.
+        """Handle the current state of our robot.
+
+        Returns wheel velocities. Unfortunately this is spaghetti code. It was
+        that or one long, ugly if/elif branch with sub if/elif branches.
         """
         if self.state == State.START:
             self.state = State.ON_PATH
@@ -77,7 +80,7 @@ class Brain(Node):
         # elif self.state == State.GRAPH
 
     def __stopStateHandler(self, error):
-        """Handles the stopped state of our robot"""
+        """Handle the stopped state of our robot."""
         if self.last_state == State.ON_PATH:
             if self.w1 > 2.0 or self.w2 > 2.0:
                 # Slow down until pass the stop instead of adding another state

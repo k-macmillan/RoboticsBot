@@ -40,8 +40,7 @@ class ObstacleCamera(Camera):
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
             masked = cv2.bitwise_and(blurred, blurred, mask=mask)
-            cv2.imshow('Obstacles',
-                       cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.imshow('Obstacles', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
 
     def __identifyObstacle(self):
         """ The assumption is that the closest pixel in this matrix is the
