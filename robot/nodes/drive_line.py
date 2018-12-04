@@ -14,8 +14,9 @@ class DriveLine(object):
 
         :param r: The robot wheel radius.
         :param L: The robot half-axle length.
-        :param verbose: Should the DriveLine path scrape together enough passion
-        to notify us of basic information? Defaults to False.
+        :param verbose: Should the DriveLine path scrape together enough
+                        passion to notify us of basic information? Defaults
+                        to False.
         """
         self.verbose = verbose
         self.r = r
