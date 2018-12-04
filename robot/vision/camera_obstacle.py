@@ -30,16 +30,50 @@ class ObstacleCamera(Camera):
         y_low = np.array([25 - sensitivity, 100, 100])
         y_high = np.array([25 + sensitivity, 255, 255])
         mask = cv2.inRange(blurred, y_low, y_high)
+        centroid, closest = self.__identifyObstacle()
+        print('Centroid: ({}, {})'.format(centroid[0], centroid[1]))
+        print('Closest : ({}, {})'.format(closest[0], closest[1]))
 
-        # We see a stoplight if there are more than some number of red pixels.
-        if np.sum(mask) / 255 > self.YELLOW_CUTOFF:
-            pass
-            # msg = String()
-            # msg.data = POI['STOPLIGHT']
-            # self.publisher.publish(msg)
+        # Publish obstacle
+        # May require Float32MultiArray for the brain to process this one...
 
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
             masked = cv2.bitwise_and(blurred, blurred, mask=mask)
             cv2.imshow('Obstacles',
                        cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+
+    def __identifyObstacle(self):
+        """ The assumption is that the closest pixel in this matrix is the
+            obstacle and all obstacles are one cluster. This method is heafty
+            because the mask contains pixel data, not point data so we have to
+            analyze the pixel data to determine if it should be added to our
+            centroid calculation.
+        """
+        # Find centroid of object and closest pixel
+        camera = (320, 480)
+        pt_count = 0
+        x_sum = 0.0
+        y_sum = 0.0
+        closest = (-1, -1)
+        best_dist = float('inf')
+
+        for x in range(640):
+            for y in range(480):
+                # We are only concerned with threshold pixels
+                if self.mask[x][y] == 255:
+                    # Add point to x/y sums
+                    x_sum += x
+                    y_sum += y
+                    pt_count += 1
+
+                    # Distance^2 from point to camera
+                    dist = self.__distanceSqrd(camera, (x, y))
+                    if dist < best_dist:
+                        best_dist = dist
+                        closest = (x, y)
+        centroid = (x_sum / pt_count, y_sum / pt_count)
+        return centroid, closest
+
+    def __distanceSqrd(self, a, b):
+        return (a[0] - b[0])**2 + (a[1] - b[1])**2
