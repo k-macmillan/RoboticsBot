@@ -98,7 +98,7 @@ class Brain(Node):
         # elif self.last_state == graph
 
 
-"""OBSOLETE SECTION, WAITING ON PARTNER APPROVAL FOR DELETION"""
+# OBSOLETE SECTION, WAITING ON PARTNER APPROVAL FOR DELETION
 
     def __startTwist(self, msg):
         """Set the local velocities in the START state.
