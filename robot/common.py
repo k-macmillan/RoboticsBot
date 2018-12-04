@@ -34,6 +34,7 @@ class State(Enum):
 
     START - we've just started up and are waiting to begin lane-following.
     ON_PATH - we're currently following the lane.
+    STOPPING - process of stopping has begun or is in work.
     STOPPED - currently stopped. Either at a stoplight, lot exit, or node.
     CANCER_SEARCH - we're searching for the parking lot exit.
     CANCER_DESTROY - found the parking lot exit, and are routing towards it.
@@ -43,11 +44,12 @@ class State(Enum):
     END - we're done. Queue the less-heavy drinking.
     """
 
-    START = 0
-    ON_PATH = 1
-    STOPPED = 2
-    CANCER_SEARCH = 3
-    CANCER_DESTROY = 4
-    ORIENT = 5
-    GRAPH = 6
-    END = 7
+    START
+    ON_PATH
+    STOPPING
+    STOPPED
+    CANCER_SEARCH
+    CANCER_DESTROY
+    ORIENT
+    GRAPH
+    END
