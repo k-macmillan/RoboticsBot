@@ -4,6 +4,12 @@ Final project for CSC 515, Introduction to Robotics
 
 ---
 
+## Helpful Links
+
+* [Detecting white](https://stackoverflow.com/questions/22588146/tracking-white-color-using-python-opencv)
+* [Detecting black](https://stackoverflow.com/questions/17883023/python-detect-black-squares)
+* [Detecting green](https://stackoverflow.com/questions/31590499/opencv-android-green-color-detection)
+
 ## Ubuntu 18.04 Notes
 
 Here’s a mostly complete list of things I had to do to get the Geekbot stuff set up on Ubuntu 18.04. I still don’t know for sure everything else will work, but I can at least get the camera feed now.
