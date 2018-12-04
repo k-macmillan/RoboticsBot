@@ -29,8 +29,8 @@ class CameraController(Node):
     /robot/centroid (Float32) - The centroid of the lane contour. There well be
     no messages published on this topic if the current state is not currently
     line-following.
-    /robot/encounter (String) - A string serialization of any points we encounter.
-    E.g., a stoplight, or the parking lot entrance.
+    /robot/encounter (String) - A string serialization of any points we
+    encounter. E.g., a stoplight, or the parking lot entrance.
     """
 
     # How much do we blur the image
@@ -43,7 +43,8 @@ class CameraController(Node):
         :type camera_topic: str
         :param state_topic: The topic publishing the current state.
         :type state_topic: str
-        :param verbose: Whether or not to console spam with useless random info.
+        :param verbose: Whether or not to console spam with useless random
+        info.
         :type verbose: bool
         """
         super(CameraController, self).__init__(name='CameraController')
@@ -74,7 +75,8 @@ class CameraController(Node):
     def image_handler(self, compressed):
         """Handle each compressed video frame.
 
-        Based on the current state, perform different analysis on the given image.
+        Based on the current state, perform different analysis on the given
+        image.
 
         :param compressed: The compressed video frame.
         :type compressed: sensor_msgs.msg.CompressedImage
@@ -96,19 +98,20 @@ class CameraController(Node):
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
         elif self.state == State.CANCER_SEARCH:
-            # TODO: Possibly implement a CancerSearchCamera that searches for the
-            # exit in the parking lot.
+            # TODO: Possibly implement a CancerSearchCamera that searches for
+            # the exit in the parking lot.
             pass
         elif self.state == State.CANCER_DESTROY:
-            # TODO: Implement a CancerDestroyCamera that somehow uses a potential
-            # function to compute a gradient that pushes us away from the obstacles,
-            # away from the edge, and towards the exit. The only thing it needs
-            # to return is the gradient at the current position; there's no strict
-            # need to localize.
+            # TODO: Implement a CancerDestroyCamera that somehow uses a
+            # potential function to compute a gradient that pushes us away from
+            # the obstacles, away from the edge, and towards the exit. The only
+            # thing it needs to return is the gradient at the current position;
+            # there's no strict need to localize.
             pass
         elif self.state == State.ORIENT:
-            # TODO: Implement an OrientationCamera that helps the Brain position
-            # itself at an intersection so that the robot is facing a road.
+            # TODO: Implement an OrientationCamera that helps the Brain
+            # position itself at an intersection so that the robot is facing a
+            # road.
             pass
         elif self.state == State.GRAPH:
             # TODO: Implement a GraphCamera that identifies nodes in the graph.
@@ -122,7 +125,8 @@ class CameraController(Node):
         """Handle each state update.
 
         :param state: The new state update.
-        :type state: a std_msgs.msg.UInt8 msg containing a robot.common.State enum.
+        :type state: a std_msgs.msg.UInt8 msg containing a robot.common.State
+        enum.
         """
         state = State(state.data)
         if self.verbose:

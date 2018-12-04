@@ -14,7 +14,7 @@ class IrSpammer(Node):
     """A ROS Node to spam IR data to the console. For testing purposes only."""
 
     def __init__(self):
-        """Create a basically useless ROS Node to spam the console with IR sensor data."""
+        """Create a basically useless ROS Node to spam the console."""
         super(IrSpammer, self).__init__(name='IrSpammer')
 
     def init_node(self):

@@ -12,7 +12,8 @@ from sensor_msgs.msg import CompressedImage
 from robot.nodes import Node
 
 
-# TODO: Remove the TKinter GUI because it doesn't play nice with the NodeManager
+# TODO: Remove the TKinter GUI because it doesn't play nice with the
+# NodeManager
 class ContourDetector(Node):
     """An OOP-ified version of the example contour detection code provided
     as an example of how to interact with OpenCV from ROS."""
@@ -173,7 +174,8 @@ class ContourDetector(Node):
             self.root, from_=0, to=255, length=480, orient=HORIZONTAL)
         self.high_val.grid(column=1, row=6)
 
-        # Initialize these values in case the callback gets pulled before Tk updates
+        # Initialize these values in case the callback gets pulled before Tk
+        # updates
         self.l_hue = self.low_hue.get()
         self.l_sat = self.low_sat.get()
         self.l_val = self.low_val.get()

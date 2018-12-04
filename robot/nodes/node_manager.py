@@ -24,8 +24,8 @@ class Node(multiprocessing.Process):
         """Run the ROS Node.
 
         NOTE: This method should *not* be overridden by a derived class. If a
-              derived class wishes to customize the Node initialization process,
-              it should override the init_node method.
+              derived class wishes to customize the Node initialization
+              process, it should override the init_node method.
         NOTE: This method gets run in the created process.
         """
         # Initialize this node before spinning.
@@ -62,9 +62,9 @@ class Node(multiprocessing.Process):
 class NodeManager(object):
     """A class to manage multiple ROS nodes, each in their own process.
 
-    NOTE: rospy.init_node requires each node to be created in a different process.
-          This is directly at odds at having a single Python entry point for
-          bringing a collection of nodes online.
+    NOTE: rospy.init_node requires each node to be created in a different
+          process. This is directly at odds at having a single Python entry
+          point for bringing a collection of nodes online.
           Note however, that ROS launchfiles solve this problem, but I have no
           desire to learn yet another new thing.
     """
