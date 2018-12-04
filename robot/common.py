@@ -18,9 +18,10 @@ LANE_CENTROID = '/geekbot/lane_centroid'
 POINT_OF_INTEREST = '/geekbot/encounter_interest'
 
 # Camera POI strings
-STOPLIGHT = 'stoplight'
-EXIT_LOT = 'exit parking lot'
-GRAPH_NODE = 'graph node'
+POI = {'STOPLIGHT': 'stoplight',
+       'EXIT_LOT': 'exit parking lot',
+       'GRAPH_NODE': 'graph node'}
+
 
 class State(Enum):
     """Possible robot states.
