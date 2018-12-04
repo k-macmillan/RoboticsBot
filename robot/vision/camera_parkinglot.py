@@ -2,13 +2,13 @@ from __future__ import division, print_function
 
 import cv2
 import numpy as np
-from std_msgs.msg import Float32
+from std_msgs.msg import String
 
 from .camera_base import Camera
 
 
 class ParkingLotCamera(Camera):
-    """Camera class for stoplight detection."""
+    """Camera class for detecting the parking lot."""
 
     # The portion of the image we focus on. (y-slice, x-slice).
     REGION_OF_INTEREST = (slice(0, None, None), slice(0, None, None))
@@ -16,7 +16,7 @@ class ParkingLotCamera(Camera):
     GREEN_CUTOFF = 500
 
     def process_image(self, hsv_image):
-        """Publish a notification of a stoplight is encountered."""
+        """Publish a notification if the parking lot is encountered."""
         # Crop the image to deal only with whatever is directly in front of us.
         cropped = hsv_image[self.REGION_OF_INTEREST]
         sensitivity = 15
@@ -34,4 +34,4 @@ class ParkingLotCamera(Camera):
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
             masked = cv2.bitwise_and(cropped, cropped, mask=self.mask)
-            cv2.imshow('Obstacles', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.imshow('ParkingLot', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))

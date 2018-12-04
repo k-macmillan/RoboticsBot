@@ -2,15 +2,12 @@ from __future__ import division, print_function
 
 import cv2
 import numpy as np
-from std_msgs.msg import String
-
-from robot.common import POI
 
 from .camera_base import Camera
 
 
 class ObstacleCamera(Camera):
-    """Camera class for stoplight detection."""
+    """Camera class for obstacle detection."""
 
     # The portion of the image we focus on. (y-slice, x-slice).
     REGION_OF_INTEREST = (slice(0, None, None), slice(0, None, None))
@@ -20,7 +17,7 @@ class ObstacleCamera(Camera):
     YELLOW_CUTOFF = 500
 
     def process_image(self, hsv_image):
-        """Publish a notification of a stoplight is encountered."""
+        """Publish a notification if an obstacle is encountered."""
         # Crop the image to deal only with whatever is directly in front of us.
         cropped = hsv_image[self.REGION_OF_INTEREST]
         sensitivity = 5
@@ -40,11 +37,13 @@ class ObstacleCamera(Camera):
             cv2.imshow('Obstacles', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
 
     def __identifyObstacle(self):
-        """ The assumption is that the closest pixel in this matrix is the
-            obstacle and all obstacles are one cluster. This method is heafty
-            because the mask contains pixel data, not point data so we have to
-            analyze the pixel data to determine if it should be added to our
-            centroid calculation.
+        """Identify an obstacle if it is in the frame.
+
+        The assumption is that the closest pixel in this matrix is the
+        obstacle and all obstacles are one cluster. This method is hefty
+        because the mask contains pixel data, not point data so we have to
+        analyze the pixel data to determine if it should be added to our
+        centroid calculation.
         """
         # Find centroid of object and closest pixel
         camera = (320, 480)

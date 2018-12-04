@@ -90,10 +90,6 @@ class CameraController(Node):
         hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 
         if self.state == State.ON_PATH or self.state == State.START:
-            # TODO: Implement a LaneCamera and a StoplightCamera. The LaneCamera
-            # will find the lane's position in the current field of view. The
-            # StoplightCamera will notify us if we are directly in front of a
-            # stoplight.
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
         elif self.state == State.CANCER_SEARCH:
