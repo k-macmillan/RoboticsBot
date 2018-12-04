@@ -11,6 +11,7 @@ from robot.nodes import Node
 
 from .camera_lane import LaneCamera
 from .camera_stoplight import StoplightCamera
+from .camera_obstacle import ObstacleCamera
 
 
 class CameraController(Node):
@@ -61,6 +62,7 @@ class CameraController(Node):
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
+        # self.obstacle_cam = ObstacleCamera(lane_publisher, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -86,6 +88,7 @@ class CameraController(Node):
 
         # Convert BGR to HSV.
         hsv_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2HSV)
+
         # Blur the image before doing anything.
         hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 

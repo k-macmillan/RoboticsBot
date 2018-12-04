@@ -26,8 +26,9 @@ class Brain(Node):
                                           Float32MultiArray,
                                           queue_size=10)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
-        self.w1 = 10.0
-        self.w2 = 10.0
+        self.base_sp = 8.0
+        self.w1 = self.base_sp
+        self.w2 = self.base_sp
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -50,6 +51,11 @@ class Brain(Node):
             self.last_state = self.state
             self.state = State.STOPPED
 
+            # Testing
+            self.state = State.END
+
+
+
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
 
@@ -70,14 +76,22 @@ class Brain(Node):
         """
         if self.state == State.START:
             self.state = State.ON_PATH
-            return 10.0, 10.0
+            return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         elif self.state == State.STOPPED:
             return self.__stopStateHandler(error)
         elif self.state == State.ON_PATH:
             # Adjust based on camera
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-        # elif self.state == State.ORIENT
-        # elif self.state == State.GRAPH
+        elif self.state == State.END:
+            print('END')
+            return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
+        else:
+            print('WHY ARE WE HERE')
+            print('error: ', error)
+            print('state: ', self.state)
+            return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
+            # elif self.state == State.ORIENT
+            # elif self.state == State.GRAPH
 
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
@@ -88,7 +102,7 @@ class Brain(Node):
                                                self.w2 * 0.9,
                                                error)
             self.last_state = State.STOPPED
-            return 0.0, 0.0
+            return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.last_state == State.STOPPED:
             # Could be red light (rl), obstacle, graph
             if self.rl_count == 0:
@@ -96,12 +110,15 @@ class Brain(Node):
                 self.rl_count += 1
                 self.state = State.ON_PATH
                 self.last_state = State.STOPPED
-                return 10.0, 10.0
+                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
             elif self.rl_count == 1:
                 sleep(1.5)
                 self.rl_count += 1
                 self.state = State.CANCER_SEARCH
                 self.last_state = State.STOPPED
-                return 10.0, 10.0
+                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+        else:
+            print('State: ', self.state)
+            return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         # elif self.last_state == obstacle
         # elif self.last_state == graph
