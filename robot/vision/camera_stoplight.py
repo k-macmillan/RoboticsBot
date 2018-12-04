@@ -23,10 +23,8 @@ class StoplightCamera(Camera):
         """Publish a notification of a stoplight is encountered."""
         # Crop the image to deal only with whatever is directly in front of us.
         cropped = hsv_image[self.REGION_OF_INTEREST]
-        # Blur the image before doing anything.
-        blurred = cv2.GaussianBlur(cropped, self.BLUR_KERNEL, 0)
 
-        # In the HSV color space, red ranges from 0-10 and from 170-180, so
+        # In the HSV color space, red ranges from 0-10 and from 160-180, so
         # we need two masks.
 
         red_low_low = np.array([0, 50, 50])
@@ -35,8 +33,8 @@ class StoplightCamera(Camera):
         red_high_low = np.array([160, 50, 50])
         red_high_high = np.array([180, 255, 255])
 
-        lower_mask = cv2.inRange(blurred, red_low_low, red_low_high)
-        upper_mask = cv2.inRange(blurred, red_high_low, red_high_high)
+        lower_mask = cv2.inRange(cropped, red_low_low, red_low_high)
+        upper_mask = cv2.inRange(cropped, red_high_low, red_high_high)
 
         # Join the two masks.
         mask = lower_mask + upper_mask
@@ -48,6 +46,6 @@ class StoplightCamera(Camera):
 
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
-            masked = cv2.bitwise_and(blurred, blurred, mask=mask)
+            masked = cv2.bitwise_and(cropped, cropped, mask=mask)
             cv2.imshow('Stoplight-masked',
                        cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))

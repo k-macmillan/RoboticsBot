@@ -32,6 +32,9 @@ class CameraController(Node):
     E.g., a stoplight, or the parking lot entrance.
     """
 
+    # How much do we blur the image
+    BLUR_KERNEL = (5, 5)
+
     def __init__(self, camera_topic, state_topic, verbose=False):
         """Initialize the CameraController node with the proper topics.
 
@@ -83,6 +86,8 @@ class CameraController(Node):
 
         # Convert BGR to HSV.
         hsv_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2HSV)
+        # Blur the image before doing anything.
+        hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 
         if self.state == State.ON_PATH or self.state == State.START:
             # TODO: Implement a LaneCamera and a StoplightCamera. The LaneCamera

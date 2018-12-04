@@ -12,8 +12,6 @@ class LaneCamera(Camera):
 
     # The portion of the image we focus on. (y-slice, x-slice).
     REGION_OF_INTEREST = (slice(470, 480, None), slice(0, None, None))
-    # How much do we blur the image
-    BLUR_KERNEL = (5, 5)
     # The threshold value.
     THRESH_VALUE = 70
     # The threshold maximum value.
@@ -39,11 +37,9 @@ class LaneCamera(Camera):
 
         # Convert to grayscale.
         grayscale = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-        # Blur the image before finding contours.
-        blurred = cv2.GaussianBlur(grayscale, self.BLUR_KERNEL, 0)
         # Threshold the grays.
-        _, thresh = cv2.threshold(blurred, self.THRESH_VALUE, self.THRESH_MAX,
-                                  cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(grayscale, self.THRESH_VALUE,
+                                  self.THRESH_MAX, cv2.THRESH_BINARY)
 
         if self.verbose:
             cv2.imshow('LaneCamera-thresh', thresh)

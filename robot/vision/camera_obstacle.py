@@ -23,13 +23,10 @@ class ObstacleCamera(Camera):
         """Publish a notification of a stoplight is encountered."""
         # Crop the image to deal only with whatever is directly in front of us.
         cropped = hsv_image[self.REGION_OF_INTEREST]
-        # Image should be blurred coming out of the camera, all cameras require
-        # a blur to best catch POIs.
-        blurred = cv2.GaussianBlur(cropped, self.BLUR_KERNEL, 0)
         sensitivity = 5
         y_low = np.array([25 - sensitivity, 100, 100])
         y_high = np.array([25 + sensitivity, 255, 255])
-        mask = cv2.inRange(blurred, y_low, y_high)
+        mask = cv2.inRange(cropped, y_low, y_high)
         centroid, closest = self.__identifyObstacle()
         print('Centroid: ({}, {})'.format(centroid[0], centroid[1]))
         print('Closest : ({}, {})'.format(closest[0], closest[1]))
@@ -39,7 +36,7 @@ class ObstacleCamera(Camera):
 
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
-            masked = cv2.bitwise_and(blurred, blurred, mask=mask)
+            masked = cv2.bitwise_and(cropped, cropped, mask=mask)
             cv2.imshow('Obstacles', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
 
     def __identifyObstacle(self):
