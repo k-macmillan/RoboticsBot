@@ -17,6 +17,8 @@ TOPIC = {
     'LANE_CENTROID': '/geekbot/lane_centroid',
     # Notification that we've reached a point of interest.
     'POINT_OF_INTEREST': '/geekbot/encounter_interest',
+    # The gradient at the current location in the parking lot.
+    'LOT_GRADIENT': '/geekbot/cancer/gradient',
 }
 
 # Camera POI strings

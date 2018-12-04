@@ -3,15 +3,16 @@ from __future__ import division, print_function
 import cv2
 import rospy as ros
 from cv_bridge import CvBridge, CvBridgeError
+from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float32, String, UInt8
 
 from robot.common import TOPIC, State
 from robot.nodes import Node
 
+from .camera_cancer import CancerousCamera
 from .camera_lane import LaneCamera
 from .camera_stoplight import StoplightCamera
-from .camera_obstacle import ObstacleCamera
 
 
 class CameraController(Node):
@@ -60,10 +61,12 @@ class CameraController(Node):
             TOPIC['POINT_OF_INTEREST'], String, queue_size=10)
         lane_publisher = ros.Publisher(
             TOPIC['LANE_CENTROID'], Float32, queue_size=10)
+        gradient_publisher = ros.Publisher(
+            TOPIC['LOT_GRADIENT'], Vector3, queue_size=10)
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
-        # self.obstacle_cam = ObstacleCamera(lane_publisher, verbose=verbose)
+        self.cancer = CancerousCamera(gradient_publisher, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -97,17 +100,11 @@ class CameraController(Node):
         if self.state == State.ON_PATH or self.state == State.START:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.CANCER_SEARCH:
-            # TODO: Possibly implement a CancerSearchCamera that searches for
-            # the exit in the parking lot.
-            pass
-        elif self.state == State.CANCER_DESTROY:
-            # TODO: Implement a CancerDestroyCamera that somehow uses a
-            # potential function to compute a gradient that pushes us away from
-            # the obstacles, away from the edge, and towards the exit. The only
-            # thing it needs to return is the gradient at the current position;
-            # there's no strict need to localize.
-            pass
+        elif self.state == State.CANCER_SEARCH or self.state == State.CANCER_DESTROY:
+            # Publishes the gradient at the robot's current location. The
+            # gradient points away from anything not green or blue, and points
+            # towards anything blue (the lot exit).
+            self.cancer.process_image(hsv_frame)
         elif self.state == State.ORIENT:
             # TODO: Implement an OrientationCamera that helps the Brain
             # position itself at an intersection so that the robot is facing a
