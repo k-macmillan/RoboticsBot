@@ -17,6 +17,10 @@ LANE_CENTROID = '/geekbot/lane_centroid'
 # Notification that we've reached a point of interest.
 POINT_OF_INTEREST = '/geekbot/encounter_interest'
 
+# Camera POI strings
+STOPLIGHT = 'stoplight'
+EXIT_LOT = 'exit parking lot'
+GRAPH_NODE = 'graph node'
 
 class State(Enum):
     """Possible robot states.
