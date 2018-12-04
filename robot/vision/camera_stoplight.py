@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from std_msgs.msg import String
 
-from robot.common import STOPLIGHT
+from robot.common import POI
 
 from .camera_base import Camera
 
@@ -43,7 +43,7 @@ class StoplightCamera(Camera):
         # We see a stoplight if there are more than some number of red pixels.
         if np.sum(mask) / 255 > self.RED_SENSITIVITY:
             msg = String()
-            msg.data = STOPLIGHT
+            msg.data = POI['STOPLIGHT']
             self.publisher.publish(msg)
 
         if self.verbose:

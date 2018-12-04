@@ -3,7 +3,7 @@ from __future__ import division, print_function
 import rospy as ros
 from std_msgs.msg import Int32, Float32MultiArray
 
-from robot.common import WHEEL_LEFT, WHEEL_RIGHT, WHEEL_TWIST
+from robot.common import TOPIC
 from robot.nodes import Node
 
 
@@ -14,12 +14,12 @@ class Wheels(Node):
         """Initialize the ROS Node."""
         super(Wheels, self).__init__(name='Wheels')
         self.verbose = verbose
-        self.left_pub = ros.Publisher(WHEEL_LEFT, Int32, queue_size=10)
-        self.right_pub = ros.Publisher(WHEEL_RIGHT, Int32, queue_size=10)
+        self.left_pub = ros.Publisher(TOPIC['WHEEL_LEFT'], Int32, queue_size=10)
+        self.right_pub = ros.Publisher(TOPIC['WHEEL_RIGHT'], Int32, queue_size=10)
 
     def init_node(self):
         """Perform custom Node initialization."""
-        ros.Subscriber(WHEEL_TWIST, Float32MultiArray, self.__processTwist)
+        ros.Subscriber(TOPIC['WHEEL_TWIST'], Float32MultiArray, self.__processTwist)
 
     def __processTwist(self, msg):
         """Process the Twist message and sends that to the publish method."""

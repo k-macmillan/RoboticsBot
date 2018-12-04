@@ -1,4 +1,4 @@
-from .common import CAMERA_FEED, ROBOT_STATE
+from .common import TOPIC
 from .nodes import Brain, NodeManager, Wheels
 from .vision import CameraController
 
@@ -20,8 +20,9 @@ class Robot(object):
         """Add each node to the node manager."""
         self.nm.add_node(Wheels())
         self.nm.add_node(Brain(verbose=self.verbose))
-        self.nm.add_node(
-            CameraController(CAMERA_FEED, ROBOT_STATE, verbose=self.verbose))
+        self.nm.add_node(CameraController(TOPIC['CAMERA_FEED'],
+                                          TOPIC['ROBOT_STATE'],
+                                          verbose=self.verbose))
 
     def start(self):
         """Start the robot."""

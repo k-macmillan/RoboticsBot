@@ -8,7 +8,7 @@ import termios
 import rospy as ros
 from std_msgs.msg import Int32
 
-from robot.common import WHEEL_LEFT, WHEEL_RIGHT
+from robot.common import TOPIC
 from robot.nodes import Node
 
 
@@ -32,8 +32,8 @@ class Joystick(Node):
         super(Joystick, self).__init__(name='Joystick')
         self.stdin = stdin
         self.settings = None
-        self.left_publisher = ros.Publisher(WHEEL_LEFT, Int32, queue_size=1)
-        self.right_publisher = ros.Publisher(WHEEL_RIGHT, Int32, queue_size=1)
+        self.left_publisher = ros.Publisher(TOPIC['WHEEL_LEFT'], Int32, queue_size=1)
+        self.right_publisher = ros.Publisher(TOPIC['WHEEL_RIGHT'], Int32, queue_size=1)
 
     def init_node(self):
         """Perform custom Node initialization."""

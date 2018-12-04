@@ -1,21 +1,21 @@
 from enum import Enum
 
-# Control the left wheel speed.
-WHEEL_LEFT = '/geekbot/left_wheel'
-# Control the right wheel speed.
-WHEEL_RIGHT = '/geekbot/right_wheel'
-# Angular and linear velocities in the local reference frame.
-WHEEL_TWIST = '/geekbot/wheel_twist'
-# Camera feed from the robot.
-CAMERA_FEED = '/geekbot/webcam/image_raw/compressed'
-# IR sensor feed from the robot.
-IR_FEED = '/geekbot/ir_cm'
-# Current robot state.
-ROBOT_STATE = '/geekbot/state'
-# Lane position in the viewing window.
-LANE_CENTROID = '/geekbot/lane_centroid'
-# Notification that we've reached a point of interest.
-POINT_OF_INTEREST = '/geekbot/encounter_interest'
+TOPIC = {# Control the left wheel speed.
+         'WHEEL_LEFT': '/geekbot/left_wheel',
+         # Control the right wheel speed.
+         'WHEEL_RIGHT': '/geekbot/right_wheel',
+         # Angular and linear velocities in the local reference frame.
+         'WHEEL_TWIST': '/geekbot/wheel_twist',
+         # Camera feed from the robot.
+         'CAMERA_FEED': '/geekbot/webcam/image_raw/compressed',
+         # IR sensor feed from the robot.
+         'IR_FEED': '/geekbot/ir_cm',
+         # Current robot state.
+         'ROBOT_STATE': '/geekbot/state',
+         # Lane position in the viewing window.
+         'LANE_CENTROID': '/geekbot/lane_centroid',
+         # Notification that we've reached a point of interest.
+         'POINT_OF_INTEREST': '/geekbot/encounter_interest'}
 
 # Camera POI strings
 POI = {'STOPLIGHT': 'stoplight',

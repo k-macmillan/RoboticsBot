@@ -6,7 +6,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float32, String, UInt8
 
-from robot.common import LANE_CENTROID, POINT_OF_INTEREST, State
+from robot.common import TOPIC, State
 from robot.nodes import Node
 
 from .camera_lane import LaneCamera
@@ -51,8 +51,8 @@ class CameraController(Node):
         self.state = State.START
         self.bridge = CvBridge()
 
-        poi_publisher = ros.Publisher(POINT_OF_INTEREST, String, queue_size=10)
-        lane_publisher = ros.Publisher(LANE_CENTROID, Float32, queue_size=10)
+        poi_publisher = ros.Publisher(TOPIC['POINT_OF_INTEREST'], String, queue_size=10)
+        lane_publisher = ros.Publisher(TOPIC['LANE_CENTROID'], Float32, queue_size=10)
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
