@@ -25,13 +25,23 @@ class StoplightCamera(Camera):
         # cropped = hsv_image[self.REGION_OF_INTEREST]
         cropped = hsv_image
 
+        # EXPERIMENTAL
+        # Mask out everything but white.
+        # w_low = np.array([0, 0, 200])
+        # w_high = np.array([255, 200, 255])
+
+        # # Mask out everything but black.
+        # blk_low = np.array([0, 0, 0])
+        # blk_high = np.array([180, 255, 90])
+        # EXPERIMENTAL
+
         # Mask out everything but white.
         w_low = np.array([0, 0, 255 - self.SENSITIVITY])
         w_high = np.array([255, self.SENSITIVITY, 255])
 
         # Mask out everything but black.
         blk_low = np.array([0, 0, 0])
-        blk_high = np.array([180, 255, 90])
+        blk_high = np.array([180, 255, 240])
 
         w_mask = cv2.inRange(cropped, w_low, w_high)
         blk_mask = cv2.inRange(cropped, blk_low, blk_high)
@@ -39,6 +49,7 @@ class StoplightCamera(Camera):
         # Join the two masks.
         # w_img = cv2.bitwise_and(cropped, cropped, mask=w_mask)
         mask = w_mask + blk_mask
+        # mask = blk_mask
 
         # We see a stoplight if there are more than some number of red pixels.
         # if np.sum(mask) / 255 > self.RED_SENSITIVITY:
