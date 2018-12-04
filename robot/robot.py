@@ -4,7 +4,7 @@ from .vision import CameraController
 
 
 class Robot(object):
-    """A class to assemble all of the ROS nodes together in one happy family."""
+    """Class to assemble all of the ROS nodes together in one happy family."""
 
     def __init__(self, verbose):
         """Initialize the robot.
