@@ -58,3 +58,4 @@ class State(Enum):
     ORIENT = 6
     GRAPH = 7
     END = 8
+    SPIN = 9
