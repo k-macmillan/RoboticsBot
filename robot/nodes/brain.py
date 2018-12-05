@@ -73,28 +73,9 @@ class Brain(Node):
             self.state = State.ON_PATH
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         elif self.state == State.STOPPING:
-
-            if self.last_state != State.STOPPING:
-                self.last_state = State.STOPPING
-                sleep(1)
-                self.state = State.STOPPED
-            else:
-                print('STOP PREP')
-                return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-            
-
+            return self.__stopStateHandler(error)
         elif self.state == State.STOPPED:
-            if self.last_state != State.STOPPED:
-                self.last_state = State.STOPPED
-                sleep(2)
-                if self.rl_count == 0:
-                    self.rl_count = 1
-                    self.State = State.ON_PATH
-                else:
-                    self.rl_count = 2
-                    self.State = State.CANCER_SEARCH
-                self.last_state = State.STOPPED
-                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+            return self.__stopStateHandler(error)
         elif self.state == State.ON_PATH:
             # Adjust based on camera
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
@@ -111,30 +92,24 @@ class Brain(Node):
 
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
-        if self.last_state == State.ON_PATH:
-            if self.w1 > 2.0 or self.w2 > 2.0:
-                # Slow down until pass the stop instead of adding another state
-                return self.DL.calcWheelSpeeds(self.w1 * 0.9,
-                                               self.w2 * 0.9,
-                                               error)
+        if self.last_state != State.STOPPING:
+            self.last_state = State.STOPPING
+            sleep(1)
+            self.state = State.STOPPED
+        elif self.last_state == State.STOPPING:
+            print('STOP PREP')
+        elif self.last_state != State.STOPPED:
             self.last_state = State.STOPPED
-            return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
-        elif self.last_state == State.STOPPED:
-            # Could be red light (rl), obstacle, graph
+            sleep(2)
             if self.rl_count == 0:
-                sleep(1.5)
-                self.rl_count += 1
-                self.state = State.ON_PATH
-                self.last_state = State.STOPPED
-                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-            elif self.rl_count == 1:
-                sleep(1.5)
-                self.rl_count += 1
-                self.state = State.CANCER_SEARCH
-                self.last_state = State.STOPPED
-                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-        else:
-            print('State: ', self.state)
+                self.rl_count = 1
+                self.State = State.ON_PATH
+            else:
+                self.rl_count = 2
+                self.State = State.CANCER_SEARCH
+            self.last_state = State.STOPPED
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+        else:
+            return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.last_state == obstacle
         # elif self.last_state == graph
