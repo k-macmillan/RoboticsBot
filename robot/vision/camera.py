@@ -104,7 +104,7 @@ class CameraController(Node):
         if self.state == State.ON_PATH:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.TESTICULAR_CANCER or self.state == State.START:
+        elif self.state == State.TESTICULAR_CANCER or self.state == State.SPIN:
             # Publishes the gradient at the robot's current location. The
             # gradient points away from anything not green or blue, and points
             # towards anything blue (the lot exit).
