@@ -58,11 +58,11 @@ class CameraController(Node):
         self.bridge = CvBridge()
 
         poi_publisher = ros.Publisher(
-            TOPIC['POINT_OF_INTEREST'], String, queue_size=10)
+            TOPIC['POINT_OF_INTEREST'], String, queue_size=1)
         lane_publisher = ros.Publisher(
-            TOPIC['LANE_CENTROID'], Float32, queue_size=10)
+            TOPIC['LANE_CENTROID'], Float32, queue_size=1)
         gradient_publisher = ros.Publisher(
-            TOPIC['LOT_GRADIENT'], Vector3, queue_size=10)
+            TOPIC['LOT_GRADIENT'], Vector3, queue_size=1)
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)

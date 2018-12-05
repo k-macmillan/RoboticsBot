@@ -22,7 +22,7 @@ class Brain(Node):
         self.state = State.START
         self.rl_count = 0
         self.wheel_speeds = ros.Publisher(
-            TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=10)
+            TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
         self.base_sp = 8.0
         self.w1 = self.base_sp
