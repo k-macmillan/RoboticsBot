@@ -88,10 +88,13 @@ class Brain(Node):
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
         if self.state == State.STOPPING:
+            print('Sleeping...')
             sleep(1)
+            print('Woke...')
             self.state = State.STOPPED
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.state == State.STOPPED:
+            print('THE ROBOT IS STOPPED')
             sleep(2)
             if self.rl_count == 0:
                 self.rl_count = 1

@@ -48,12 +48,9 @@ class StoplightCamera(Camera):
 
         # We see a stoplight if there are more than some number of red pixels.
         if np.sum(mask) / 255 > self.STOP_THRESHOLD:
-            print('FOUND STOPLIGHT: ', np.sum(mask) / 255)
             msg = String()
             msg.data = POI['STOPLIGHT']
             self.publisher.publish(msg)
-        else:
-            print('\t\tno stoplight: ', np.sum(mask) / 255)
 
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
