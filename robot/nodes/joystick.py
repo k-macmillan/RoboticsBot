@@ -5,7 +5,10 @@ import select
 import sys
 import termios
 
+import cv2
 import rospy as ros
+from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Int32
 
 from robot.common import TOPIC
@@ -36,9 +39,12 @@ class Joystick(Node):
             TOPIC['WHEEL_LEFT'], Int32, queue_size=1)
         self.right_publisher = ros.Publisher(
             TOPIC['WHEEL_RIGHT'], Int32, queue_size=1)
+        self.camera_topic = TOPIC['CAMERA_FEED']
+        self.bridge = CvBridge()
 
     def init_node(self):
         """Perform custom Node initialization."""
+        ros.Subscriber(self.camera_topic, CompressedImage, self.image_handler)
         ros.Timer(ros.Duration(0.1), self.callback)
         sys.stdin = os.fdopen(self.stdin)
         self.settings = termios.tcgetattr(sys.stdin)
@@ -91,3 +97,20 @@ class Joystick(Node):
         self.left_publisher.publish(msg)
         self.right_publisher.publish(msg)
         super(Joystick, self).stop()
+
+    def image_handler(self, compressed):
+        """Handle each compressed video frame.
+
+        :param compressed: The compressed video frame.
+        :type compressed: sensor_msgs.msg.CompressedImage
+        """
+        try:
+            # Decompress the message into an openCV frame.
+            bgr_frame = self.bridge.compressed_imgmsg_to_cv2(
+                compressed, 'bgr8')
+        except CvBridgeError as e:
+            print(e)
+
+        cv2.namedWindow('Joystick', cv2.WINDOW_NORMAL)
+        cv2.imshow('Joystick', bgr_frame)
+        cv2.waitKey(10)
