@@ -21,7 +21,10 @@ class Brain(Node):
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.START
+        self.last_error = 1000.0
         self.rl_count = 0
+        self.timer_counter = 0
+        self.timer = None
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.state_pub = ros.Publisher(
@@ -34,7 +37,7 @@ class Brain(Node):
     def init_node(self):
         """Perform custom Node initialization."""
         # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
-        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
+        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__goalPath)
         # ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
         # self.__determineState)
 
@@ -71,6 +74,16 @@ class Brain(Node):
         elif msg.data == POI['OBSTACLE']:
             self.transition(State.OBSTACLE)
 
+    def __goalPath(self, msg):
+        self.last_error = msg.data
+        # print('Error in state handler: {}'.format(self.last_error))
+
+        self.w1, self.w2 = self.__stateHandler(msg.data)
+
+        wheels = Float32MultiArray()
+        wheels.data = [self.w1, self.w2]
+        self.wheel_speeds.publish(wheels)
+
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
 
@@ -102,13 +115,17 @@ class Brain(Node):
         elif self.state == State.TESTICULAR_CANCER:
             # We are assuming it is impossible to reach this state if there is
             # an obstacle in front of us
-            self.__spin()
             if error < 1000.0:
                 # Centroid found
                 return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
             else:
                 # Still searching, no goal found
-                return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
+                print('SETTING SPIN STATE')
+                self.state = State.SPIN
+                return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
+        elif self.state == State.SPIN:
+            self.__start_timer()
+            return self.base_sp * 100 * 0.5, -self.base_sp * 100 * 0.5
         elif self.state == State.END:
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         else:
@@ -142,12 +159,19 @@ class Brain(Node):
         # stub return:
         return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
 
-    def __spin(self):
-        wheels = Float32MultiArray()
-        wheels.data = [self.base_sp * 100, -self.base_sp * 100]
-        self.wheel_speeds.publish(wheels)
-        # How long it takes for a full 360 rotation
-        sleep(3.65)
-        wheels.data = [0.0, 0.0]
-        self.wheel_speeds.publish(wheels)
-        sleep(2)
+    def __start_timer(self):
+        if self.timer is None:
+            self.timer = ros.Timer(ros.Duration(secs=0.01),
+                                   self.__timerCallback)
+
+    def __timerCallback(self, event):
+        if self.timer_counter > 365 * 2 or self.last_error < 1000.0:
+            self.transition(State.TESTICULAR_CANCER)
+            self.timer.shutdown()
+            self.timer_counter = 0
+            self.timer = None
+            wheels = Float32MultiArray()
+            wheels.data = [0.0, 0.0]
+            self.wheel_speeds.publish(wheels)
+        else:
+            self.timer_counter += 1
