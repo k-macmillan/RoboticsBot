@@ -123,7 +123,7 @@ class Brain(Node):
                 self.transition(State.ON_PATH)
             else:
                 self.rl_count = 2
-                self.transition(State.CANCER_SEARCH)
+                self.transition(State.TESTICULAR_CANCER)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         print('I\'m in state: ', self.state)
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
