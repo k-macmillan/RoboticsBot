@@ -11,7 +11,7 @@ class GoalCamera(Camera):
     """Camera class for detecting the goal."""
 
     # Sensitivity for the blue color detection.
-    BLUE_SENSITIVITY = 15
+    BLUE_SENSITIVITY = 40
     # The threshold value.
     THRESH_VALUE = 70
     # The threshold maximum value.
@@ -24,7 +24,9 @@ class GoalCamera(Camera):
         goal to the center of the frame. If the goal is not visible, publish an
         absurd value.
         """
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 100, 100])
+
+        # These values are appropriate ~50 Lux.
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 100])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
@@ -52,18 +54,18 @@ class GoalCamera(Camera):
         if contours:
             c = max(contours, key=cv2.contourArea)
             M = cv2.moments(c)
+            if M['m00'] != 0:
+                cx = int(M['m10'] / M['m00'])
+                cy = int(M['m01'] / M['m00'])
 
-            cx = int(M['m10'] / M['m00'])
-            cy = int(M['m01'] / M['m00'])
+                image_center = hsv_image.shape[1] / 2
+                if cx <= image_center:
+                    fraction = (cx - image_center) / image_center
+                else:
+                    fraction = -(image_center - cx) / image_center
 
-            image_center = hsv_image.shape[1] / 2
-            if cx <= image_center:
-                fraction = (cx - image_center) / image_center
-            else:
-                fraction = -(image_center - cx) / image_center
-
-            if self.verbose:
-                print('GoalCamera: goal centroid: ({}, {})'.format(cx, cy))
+                if self.verbose:
+                    print('GoalCamera: goal centroid: ({}, {})'.format(cx, cy))
 
         if self.verbose:
             print('GoalCamera: control signal:', fraction)

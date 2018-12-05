@@ -15,16 +15,16 @@ class CancerousCamera(Camera):
     """
 
     # Sensitivity for the green color detection.
-    GREEN_SENSITIVITY = 15
+    GREEN_SENSITIVITY = 50
     # Sensitivity for the blue color detection.
-    BLUE_SENSITIVITY = 15
+    BLUE_SENSITIVITY = 40
 
     def process_image(self, hsv_image):
         """Produce a repulsive gradient away from anything not green/blue."""
-        green_low = np.array([60 - self.GREEN_SENSITIVITY, 100, 100])
+        green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 100, 100])
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 100])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
