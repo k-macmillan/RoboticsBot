@@ -20,7 +20,6 @@ class Brain(Node):
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.START
-        self.last_state = State.START
         self.rl_count = 0
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=10)
@@ -44,7 +43,6 @@ class Brain(Node):
         :type msg: std_msgs.msg.String
         """
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
-            self.last_state = self.state
             self.state = State.STOPPING
 
     def __correctPath(self, msg):
@@ -89,11 +87,9 @@ class Brain(Node):
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
         if self.state == State.STOPPING:
-            if self.last_state != State.STOPPING:
-                self.last_state = State.STOPPING
-                sleep(1)
-                self.state = State.STOPPED
-                return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
+            sleep(1)
+            self.state = State.STOPPED
+            return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.state == State.STOPPED:
             sleep(2)
             if self.rl_count == 0:
@@ -104,6 +100,7 @@ class Brain(Node):
                 self.state = State.CANCER_SEARCH
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         print('wtf you doing yo?')
+        print('I\'m in state: ', self.state)
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-        # elif self.last_state == obstacle
-        # elif self.last_state == graph
+        # elif self.state == obstacle
+        # elif self.state == graph
