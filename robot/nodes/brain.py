@@ -1,11 +1,12 @@
 from __future__ import division, print_function
 
-import rospy as ros
 from time import sleep
-from std_msgs.msg import Float32, String, Float32MultiArray
 
-from robot.common import TOPIC, POI, State
-from robot.nodes import Node, DriveLine
+import rospy as ros
+from std_msgs.msg import Float32, Float32MultiArray, String
+
+from robot.common import POI, TOPIC, State
+from robot.nodes import DriveLine, Node
 
 
 class Brain(Node):
