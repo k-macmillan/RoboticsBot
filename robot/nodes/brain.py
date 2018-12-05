@@ -31,10 +31,11 @@ class Brain(Node):
 
     def init_node(self):
         """Perform custom Node initialization."""
-        ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
-        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
-        ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
-                       self.__determineState)
+        # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
+        # ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
+        # ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
+                       # self.__determineState)
+        self.__spin()
 
     def transition(self, state):
         """Transition the robot's state to that given.
@@ -134,3 +135,11 @@ class Brain(Node):
     def __obstacleAvoidance(self):
         # stub return:
         return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
+
+    def __spin(self):
+        wheels = Float32MultiArray()
+        wheels.data = [self.base_sp * 100, -self.base_sp * 100]
+        self.wheel_speeds.publish(wheels)
+        sleep(1.0)
+        wheels.data = [0.0, 0.0]
+        self.wheel_speeds.publish(wheels)
