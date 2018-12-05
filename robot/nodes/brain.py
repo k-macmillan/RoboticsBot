@@ -34,6 +34,16 @@ class Brain(Node):
         ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
                        self.__determineState)
 
+    def transition(self, state):
+        """Transition the robot's state to that given.
+
+        :param state: state
+        :type state: robot.common.State
+        """
+        if self.verbose:
+            print(self.state, '->', state)
+        self.state = state
+
     def __determineState(self, msg):
         """Handle a Point of Interest notification.
 
@@ -43,8 +53,7 @@ class Brain(Node):
         :type msg: std_msgs.msg.String
         """
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
-            print(self.state, '->', State.STOPPING)
-            self.state = State.STOPPING
+            self.transition(State.STOPPING)
             print('STOPPING THE ROBOT SOON...')
 
     def __correctPath(self, msg):
@@ -66,8 +75,7 @@ class Brain(Node):
         that or one long, ugly if/elif branch with sub if/elif branches.
         """
         if self.state == State.START:
-            print(self.state, '->', State.ON_PATH)
-            self.state = State.ON_PATH
+            self.transition(State.ON_PATH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         elif self.state == State.STOPPING:
             return self.__stopStateHandler(error)
@@ -93,20 +101,17 @@ class Brain(Node):
             print('Sleeping...')
             sleep(1)
             print('Woke...')
-            print(self.state, '->', State.STOPPED)
-            self.state = State.STOPPED
+            self.transition(State.STOPPED)
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.state == State.STOPPED:
             print('THE ROBOT IS STOPPED')
             sleep(2)
             if self.rl_count == 0:
                 self.rl_count = 1
-                print(self.state, '->', State.ON_PATH)
-                self.state = State.ON_PATH
+                self.transition(State.ON_PATH)
             else:
                 self.rl_count = 2
-                print(self.state, '->', State.CANCER_SEARCH)
-                self.state = State.CANCER_SEARCH
+                self.transition(State.CANCER_SEARCH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         print('wtf you doing yo?')
         print('I\'m in state: ', self.state)
