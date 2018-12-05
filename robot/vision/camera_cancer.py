@@ -2,17 +2,12 @@ from __future__ import division, print_function
 
 import cv2
 import numpy as np
-from geometry_msgs.msg import Vector3
 
 from .camera_base import Camera
 
 
 class CancerousCamera(Camera):
-    """Camera class for producing the gradient at the current location.
-
-    This class produces a repulsive gradient away from anything that is not
-    green (the lot) or blue (the lot exit).
-    """
+    """Publish obstacle obstruction information."""
 
     # Sensitivity for the green color detection.
     GREEN_SENSITIVITY = 50
@@ -20,7 +15,7 @@ class CancerousCamera(Camera):
     BLUE_SENSITIVITY = 40
 
     def process_image(self, hsv_image):
-        """Produce a repulsive gradient away from anything not green/blue."""
+        """Determine if there is an obstacle directly in front of the robot."""
         green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
@@ -33,15 +28,10 @@ class CancerousCamera(Camera):
         # Join the two masks.
         mask = green_mask + blue_mask
 
-        # TODO: Produce a blue mask.
-
-        # TODO: Mask out everything not green or blue.
-
-        # TODO: Find contours in combined mask.
-
-        # TODO: Somehow produce a gradient.
-
-        # TODO: Publish the gradient at the current location.
+        # TODO: find the right ROI for obstacles.
+        # TODO: Look for anything not blue or green in the ROI.
+        # TODO: Publish notifications for when there is and when there isn't
+        # an obstacle currently obstructing the robot.
 
         if self.verbose:
             # Mask out only the greens. Everything else will be black.

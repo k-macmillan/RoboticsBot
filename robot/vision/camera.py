@@ -105,10 +105,9 @@ class CameraController(Node):
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
         elif self.state == State.TESTICULAR_CANCER or self.state == State.SPIN:
-            # Publishes the gradient at the robot's current location. The
-            # gradient points away from anything not green or blue, and points
-            # towards anything blue (the lot exit).
+            # Determine if there is an obstacle directly in front of the robot.
             self.cancer.process_image(hsv_frame)
+            # Determine if/where the lot exit is in the frame.
             self.goal_cam.process_image(hsv_frame)
         elif self.state == State.ORIENT:
             # TODO: Implement an OrientationCamera that helps the Brain
