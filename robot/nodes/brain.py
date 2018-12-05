@@ -22,9 +22,8 @@ class Brain(Node):
         self.state = State.START
         self.last_state = State.START
         self.rl_count = 0
-        self.wheel_speeds = ros.Publisher(TOPIC['WHEEL_TWIST'],
-                                          Float32MultiArray,
-                                          queue_size=10)
+        self.wheel_speeds = ros.Publisher(
+            TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=10)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
         self.base_sp = 8.0
         self.w1 = self.base_sp
@@ -32,11 +31,8 @@ class Brain(Node):
 
     def init_node(self):
         """Perform custom Node initialization."""
-        ros.Subscriber(TOPIC['LANE_CENTROID'],
-                       Float32,
-                       self.__correctPath)
-        ros.Subscriber(TOPIC['POINT_OF_INTEREST'],
-                       String,
+        ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
+        ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
                        self.__determineState)
 
     def __determineState(self, msg):
@@ -47,7 +43,7 @@ class Brain(Node):
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
         """
-        if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH:
+        if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
             self.last_state = self.state
             self.state = State.STOPPING
 
@@ -97,22 +93,17 @@ class Brain(Node):
                 self.last_state = State.STOPPING
                 sleep(1)
                 self.state = State.STOPPED
-            elif self.last_state == State.STOPPING:
-                print('STOP PREP')
-        elif self.state == State.STOPPED:
-            if self.last_state != State.STOPPED:
-                self.last_state = State.STOPPED
-                sleep(2)
-                if self.rl_count == 0:
-                    self.rl_count = 1
-                    self.State = State.ON_PATH
-                else:
-                    self.rl_count = 2
-                    self.State = State.CANCER_SEARCH
-                self.last_state = State.STOPPED
-                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-            else:
                 return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
+        elif self.state == State.STOPPED:
+            sleep(2)
+            if self.rl_count == 0:
+                self.rl_count = 1
+                self.state = State.ON_PATH
+            else:
+                self.rl_count = 2
+                self.state = State.CANCER_SEARCH
+            return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+        print('wtf you doing yo?')
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.last_state == obstacle
         # elif self.last_state == graph
