@@ -17,7 +17,7 @@ class LaneCamera(Camera):
     # The threshold maximum value.
     THRESH_MAX = 255
     # The white mask sensitivity.
-    WHITE_SENSITIVITY = 15
+    WHITE_SENSITIVITY = 50
 
     def process_image(self, hsv_image):
         """Implement lane detection and publishes the lane centroid."""
