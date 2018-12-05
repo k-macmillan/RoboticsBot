@@ -92,23 +92,27 @@ class Brain(Node):
 
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
-        if self.last_state != State.STOPPING:
-            self.last_state = State.STOPPING
-            sleep(1)
-            self.state = State.STOPPED
-        elif self.last_state == State.STOPPING:
-            print('STOP PREP')
-        elif self.last_state != State.STOPPED:
-            self.last_state = State.STOPPED
-            sleep(2)
-            if self.rl_count == 0:
-                self.rl_count = 1
-                self.State = State.ON_PATH
+        if self.state == State.STOPPING:
+            if self.last_state != State.STOPPING:
+                self.last_state = State.STOPPING
+                sleep(1)
+                self.state = State.STOPPED
+            elif self.last_state == State.STOPPING:
+                print('STOP PREP')
+        elif self.state == State.STOPPED:
+            if self.last_state != State.STOPPED:
+                self.last_state = State.STOPPED
+                sleep(2)
+                if self.rl_count == 0:
+                    self.rl_count = 1
+                    self.State = State.ON_PATH
+                else:
+                    self.rl_count = 2
+                    self.State = State.CANCER_SEARCH
+                self.last_state = State.STOPPED
+                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
             else:
-                self.rl_count = 2
-                self.State = State.CANCER_SEARCH
-            self.last_state = State.STOPPED
-            return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+                return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.last_state == obstacle
         # elif self.last_state == graph
