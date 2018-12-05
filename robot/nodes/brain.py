@@ -32,10 +32,10 @@ class Brain(Node):
     def init_node(self):
         """Perform custom Node initialization."""
         # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
-        # ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
+        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
         # ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
                        # self.__determineState)
-        self.__spin()
+
 
     def transition(self, state):
         """Transition the robot's state to that given.
@@ -97,6 +97,7 @@ class Brain(Node):
         elif self.state == State.TESTICULAR_CANCER:
             # We are assuming it is impossible to reach this state if there is
             # an obstacle in front of us
+            self.__spin()
             if error < 1000.0:
                 # Centroid found
                 return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
@@ -140,6 +141,8 @@ class Brain(Node):
         wheels = Float32MultiArray()
         wheels.data = [self.base_sp * 100, -self.base_sp * 100]
         self.wheel_speeds.publish(wheels)
-        sleep(1.0)
+        # How long it takes for a full 360 rotation
+        sleep(3.65)
         wheels.data = [0.0, 0.0]
         self.wheel_speeds.publish(wheels)
+        sleep(2)
