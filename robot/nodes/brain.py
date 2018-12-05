@@ -61,6 +61,8 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
+        elif msg.data == POI['OBSTACLE']:
+            self.transition(State.OBSTACLE)
 
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
@@ -83,13 +85,22 @@ class Brain(Node):
         if self.state == State.START:
             self.transition(State.ON_PATH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-        elif self.state == State.STOPPING:
-            return self.__stopStateHandler(error)
-        elif self.state == State.STOPPED:
+        elif self.state == State.STOPPING or self.state == State.STOPPED:
             return self.__stopStateHandler(error)
         elif self.state == State.ON_PATH:
-            # Adjust based on camera
+            # Adjust based on camera (error)
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
+        elif self.state == State.OBSTACLE:
+            return self.__obstacleAvoidance()
+        elif self.state == State.TESTICULAR_CANCER:
+            # We are assuming it is impossible to reach this state if there is
+            # an obstacle in front of us
+            if error < 1000.0:
+                # Centroid found
+                return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
+            else:
+                # Still searching, no goal found
+                return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
         elif self.state == State.END:
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         else:
@@ -118,3 +129,7 @@ class Brain(Node):
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.state == obstacle
         # elif self.state == graph
+
+    def __obstacleAvoidance(self):
+        # stub return:
+        return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
