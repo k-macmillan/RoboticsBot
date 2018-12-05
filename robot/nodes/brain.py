@@ -3,7 +3,7 @@ from __future__ import division, print_function
 from time import sleep
 
 import rospy as ros
-from std_msgs.msg import Float32, Float32MultiArray, String
+from std_msgs.msg import Float32, Float32MultiArray, String, UInt8
 
 from robot.common import POI, TOPIC, State
 from robot.nodes import DriveLine, Node
@@ -20,10 +20,12 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.TESTICULAR_CANCER
+        self.state = State.START
         self.rl_count = 0
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
+        self.state_pub = ros.Publisher(
+            TOPIC['ROBOT_STATE'], UInt8, queue_size=1)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
         self.base_sp = 8.0
         self.w1 = self.base_sp
@@ -34,8 +36,7 @@ class Brain(Node):
         # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
         ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
         # ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
-                       # self.__determineState)
-
+        # self.__determineState)
 
     def transition(self, state):
         """Transition the robot's state to that given.
@@ -46,6 +47,9 @@ class Brain(Node):
         if self.verbose:
             print(self.state, '->', state)
         self.state = state
+        msg = UInt8()
+        msg.data = self.state.value
+        self.state_pub.publish(msg)
 
     def __determineState(self, msg):
         """Handle a Point of Interest notification.
@@ -55,7 +59,8 @@ class Brain(Node):
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
         """
-        if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
+        if msg.data == POI[
+                'STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
             self.transition(State.STOPPING)
             if self.rl_count == 1:
                 self.w1, self.w2 = self.__stateHandler(0)
