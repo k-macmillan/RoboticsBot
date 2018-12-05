@@ -54,7 +54,12 @@ class Brain(Node):
         """
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
             self.transition(State.STOPPING)
-            print('STOPPING THE ROBOT SOON...')
+            if self.rl_count == 1:
+                self.w1, self.w2 = self.__stateHandler(0)
+
+                wheels = Float32MultiArray()
+                wheels.data = [self.w1, self.w2]
+                self.wheel_speeds.publish(wheels)
 
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
@@ -85,10 +90,8 @@ class Brain(Node):
             # Adjust based on camera
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         elif self.state == State.END:
-            print('END')
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         else:
-            print('WHY ARE WE HERE')
             print('error: ', error)
             print('state: ', self.state)
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
@@ -98,14 +101,11 @@ class Brain(Node):
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
         if self.state == State.STOPPING:
-            print('Sleeping...')
-            sleep(1)
-            print('Woke...')
+            sleep(1.0)
             self.transition(State.STOPPED)
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.state == State.STOPPED:
-            print('THE ROBOT IS STOPPED')
-            sleep(2)
+            sleep(2.0)
             if self.rl_count == 0:
                 self.rl_count = 1
                 self.transition(State.ON_PATH)
@@ -113,7 +113,6 @@ class Brain(Node):
                 self.rl_count = 2
                 self.transition(State.CANCER_SEARCH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-        print('wtf you doing yo?')
         print('I\'m in state: ', self.state)
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.state == obstacle
