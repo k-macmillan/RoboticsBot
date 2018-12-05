@@ -115,6 +115,7 @@ class CameraController(Node):
             pass
 
         if self.verbose:
+            cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
             cv2.imshow('Camera', bgr_frame)
             cv2.waitKey(10)
 

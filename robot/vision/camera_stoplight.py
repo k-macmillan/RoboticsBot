@@ -58,4 +58,5 @@ class StoplightCamera(Camera):
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
             # masked = cv2.bitwise_and(cropped, cropped, mask=mask)
+            cv2.namedWindow('Stoplight-masked2', cv2.WINDOW_NORMAL)
             cv2.imshow('Stoplight-masked2', mask)
