@@ -37,6 +37,7 @@ class LaneCamera(Camera):
                        cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
 
         # Convert to grayscale.
+        # TODO: BGR to grayscale?! This is an HSV image...
         grayscale = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
         # Threshold the grays.
         _, thresh = cv2.threshold(grayscale, self.THRESH_VALUE,

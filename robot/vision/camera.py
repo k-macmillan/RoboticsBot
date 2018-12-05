@@ -11,6 +11,7 @@ from robot.common import TOPIC, State
 from robot.nodes import Node
 
 from .camera_cancer import CancerousCamera
+from .camera_goal import GoalCamera
 from .camera_lane import LaneCamera
 from .camera_stoplight import StoplightCamera
 
@@ -63,10 +64,13 @@ class CameraController(Node):
             TOPIC['LANE_CENTROID'], Float32, queue_size=1)
         gradient_publisher = ros.Publisher(
             TOPIC['LOT_GRADIENT'], Vector3, queue_size=1)
+        goal_publisher = ros.Publisher(
+            TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
 
-        self.lane_camera = LaneCamera(lane_publisher, verbose=verbose)
-        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
+        self.lane_camera = LaneCamera(lane_publisher, verbose=False)
+        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=False)
         self.cancer = CancerousCamera(gradient_publisher, verbose=verbose)
+        self.goal_cam = GoalCamera(goal_publisher, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -97,14 +101,15 @@ class CameraController(Node):
         # Blur the image before doing anything.
         hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 
-        if self.state == State.ON_PATH or self.state == State.START:
+        if self.state == State.ON_PATH:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.CANCER_SEARCH or self.state == State.CANCER_DESTROY:
+        elif self.state == State.CANCER_SEARCH or self.state == State.CANCER_DESTROY or self.state == State.START:
             # Publishes the gradient at the robot's current location. The
             # gradient points away from anything not green or blue, and points
             # towards anything blue (the lot exit).
             self.cancer.process_image(hsv_frame)
+            self.goal_cam.process_image(hsv_frame)
         elif self.state == State.ORIENT:
             # TODO: Implement an OrientationCamera that helps the Brain
             # position itself at an intersection so that the robot is facing a
