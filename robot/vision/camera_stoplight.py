@@ -18,7 +18,7 @@ class StoplightCamera(Camera):
     BLUR_KERNEL = (5, 5)
     SENSITIVITY = 50
     # How many red pixels count as a stoplight. Lol.
-    STOP_THRESHOLD = 500
+    STOP_THRESHOLD = 1000
 
     def process_image(self, hsv_image):
         """ Publish a notification of a stoplight is encountered.
@@ -34,7 +34,7 @@ class StoplightCamera(Camera):
 
         # Mask out everything but black.
         blk_low = np.array([0, 0, 0])
-        blk_high = np.array([180, 200, 140])
+        blk_high = np.array([180, 255, 200])
 
         w_mask = cv2.inRange(cropped, w_low, w_high)
         blk_mask = cv2.inRange(cropped, blk_low, blk_high)
