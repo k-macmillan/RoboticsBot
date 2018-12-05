@@ -2,29 +2,39 @@ from __future__ import division, print_function
 
 import cv2
 import numpy as np
+from geometry_msgs.msg import Vector3
 
 from .camera_base import Camera
 
 
 class CancerousCamera(Camera):
-    """Camera class for detecting the parking lot."""
+    """Camera class for producing the gradient at the current location.
 
-    # The portion of the image we focus on. (y-slice, x-slice).
-    REGION_OF_INTEREST = (slice(0, None, None), slice(0, None, None))
+    This class produces a repulsive gradient away from anything that is not
+    green (the lot) or blue (the lot exit).
+    """
+
+    # Sensitivity for the green color detection.
+    GREEN_SENSITIVITY = 15
 
     def process_image(self, hsv_image):
-        """TODO: What is this supposed to do?"""
-        # Crop the image to deal only with whatever is directly in front of us.
-        cropped = hsv_image[self.REGION_OF_INTEREST]
-        sensitivity = 15
-        g_low = np.array([60 - sensitivity, 100, 100])
-        g_high = np.array([60 + sensitivity, 255, 255])
-        mask = cv2.inRange(cropped, g_low, g_high)
+        """Produce a repulsive gradient away from anything not green/blue."""
+        green_low = np.array([60 - self.GREEN_SENSITIVITY, 100, 100])
+        green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
-        # TODO: Find a way to publish a vector field avoiding anything
-        # that is not green.
+        green_mask = cv2.inRange(hsv_image, green_low, green_high)
+
+        # TODO: Produce a blue mask.
+
+        # TODO: Mask out everything not green or blue.
+
+        # TODO: Find contours in combined mask.
+
+        # TODO: Somehow produce a gradient.
+
+        # TODO: Publish the gradient at the current location.
 
         if self.verbose:
             # Mask out only the greens. Everything else will be black.
-            masked = cv2.bitwise_and(cropped, cropped, mask=mask)
-            cv2.imshow('ParkingLot', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            masked = cv2.bitwise_and(hsv_image, hsv_image, mask=green_mask)
+            cv2.imshow('GreenMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
