@@ -16,13 +16,22 @@ class CancerousCamera(Camera):
 
     # Sensitivity for the green color detection.
     GREEN_SENSITIVITY = 15
+    # Sensitivity for the blue color detection.
+    BLUE_SENSITIVITY = 15
 
     def process_image(self, hsv_image):
         """Produce a repulsive gradient away from anything not green/blue."""
         green_low = np.array([60 - self.GREEN_SENSITIVITY, 100, 100])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 100, 100])
+        blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
+
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
+        blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
+
+        # Join the two masks.
+        mask = green_mask + blue_mask
 
         # TODO: Produce a blue mask.
 
@@ -36,5 +45,6 @@ class CancerousCamera(Camera):
 
         if self.verbose:
             # Mask out only the greens. Everything else will be black.
-            masked = cv2.bitwise_and(hsv_image, hsv_image, mask=green_mask)
-            cv2.imshow('GreenMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            masked = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
+            cv2.namedWindow('GreenBlueMask', cv2.WINDOW_NORMAL)
+            cv2.imshow('GreenBlueMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
