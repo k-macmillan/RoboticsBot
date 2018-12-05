@@ -125,7 +125,7 @@ class Brain(Node):
                 return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         elif self.state == State.SPIN:
             self.__start_timer()
-            return self.base_sp * 100 * 0.5, -self.base_sp * 100 * 0.5
+            return self.base_sp * 100, -self.base_sp * 100
         elif self.state == State.END:
             return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
         else:
@@ -165,7 +165,7 @@ class Brain(Node):
                                    self.__timerCallback)
 
     def __timerCallback(self, event):
-        if self.timer_counter > 365 * 2 or self.last_error < 1000.0:
+        if self.timer_counter > 365 or self.last_error < 1000.0:
             self.transition(State.TESTICULAR_CANCER)
             self.timer.shutdown()
             self.timer_counter = 0
