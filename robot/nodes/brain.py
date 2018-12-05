@@ -47,14 +47,9 @@ class Brain(Node):
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
         """
-        if msg.data == POI['STOPLIGHT']:
+        if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH:
             self.last_state = self.state
-            self.state = State.STOPPED
-
-            # Testing
-            self.state = State.END
-
-
+            self.state = State.STOPPING
 
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
@@ -77,8 +72,29 @@ class Brain(Node):
         if self.state == State.START:
             self.state = State.ON_PATH
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
+        elif self.state == State.STOPPING:
+
+            if self.last_state != State.STOPPING:
+                self.last_state = State.STOPPING
+                sleep(1)
+                self.state = State.STOPPED
+            else:
+                print('STOP PREP')
+                return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
+            
+
         elif self.state == State.STOPPED:
-            return self.__stopStateHandler(error)
+            if self.last_state != State.STOPPED:
+                self.last_state = State.STOPPED
+                sleep(2)
+                if self.rl_count == 0:
+                    self.rl_count = 1
+                    self.State = State.ON_PATH
+                else:
+                    self.rl_count = 2
+                    self.State = State.CANCER_SEARCH
+                self.last_state = State.STOPPED
+                return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         elif self.state == State.ON_PATH:
             # Adjust based on camera
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
