@@ -109,7 +109,6 @@ class Brain(Node):
                 self.State = State.CANCER_SEARCH
             self.last_state = State.STOPPED
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
-        else:
-            return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
+        return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         # elif self.last_state == obstacle
         # elif self.last_state == graph
