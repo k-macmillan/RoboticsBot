@@ -20,7 +20,7 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.START
+        self.state = State.TESTICULAR_CANCER
         self.last_error = 1000.0
         self.rl_count = 0
         self.timer_counter = 0
@@ -170,6 +170,8 @@ class Brain(Node):
             self.timer.shutdown()
             self.timer_counter = 0
             self.timer = None
+            self.w1 = self.base_sp
+            self.w2 = self.base_sp
             wheels = Float32MultiArray()
             wheels.data = [0.0, 0.0]
             self.wheel_speeds.publish(wheels)
