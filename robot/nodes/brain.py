@@ -44,6 +44,7 @@ class Brain(Node):
         """
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
             self.state = State.STOPPING
+            print('STOPPING THE ROBOT SOON...')
 
     def __correctPath(self, msg):
         """Process the lane centroid and control x and theta velocities.
