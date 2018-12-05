@@ -20,7 +20,7 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.START
+        self.state = State.TESTICULAR_CANCER
         self.rl_count = 0
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
@@ -32,6 +32,7 @@ class Brain(Node):
     def init_node(self):
         """Perform custom Node initialization."""
         ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
+        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__correctPath)
         ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
                        self.__determineState)
 
