@@ -102,11 +102,10 @@ class CameraController(Node):
         if self.state == State.ON_PATH:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        # TODO: Pay more attention to the state transition diagram to determine
-        # when we should do each flavor of image processing.
         elif self.state == State.CANCER or                                    \
              self.state == State.SPIN or                                      \
-             self.state == State.OBSTACLE:
+             self.state == State.MTG or                                       \
+             self.state == State.TURN:
             # Determine if there is an obstacle directly in front of the robot.
             self.cancer.process_image(hsv_frame)
             # Determine if/where the lot exit is in the frame.
@@ -134,7 +133,7 @@ class CameraController(Node):
         """
         state = State(state.data)
         if self.verbose:
-            print('Receiving state update', self.state, '->', state)
+            print('Camera: State update:', self.state, '->', state)
         self.state = state
 
     def stop(self):
