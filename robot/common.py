@@ -42,21 +42,27 @@ class State(Enum):
     ON_PATH - we're currently following the lane.
     STOPPING - process of stopping has begun or is in work.
     STOPPED - currently stopped. Either at a stoplight, lot exit, or node.
-    TESTICULAR_CANCER - we're searching for the parking lot exit.
+    CANCER - we're searching for the parking lot exit.
     OBSTACLE - found an obstacle (wall or car).
     ORIENT - we're at an intersection and are turning in place so that the road
     is directly in front of us.
     GRAPH - we're traversing the graph.
     END - we're done. Queue the less-heavy drinking.
-    """
 
+    """
+    # Line follow
     START = 0
     ON_PATH = 1
     STOPPING = 2
     STOPPED = 3
-    TESTICULAR_CANCER = 4
-    OBSTACLE = 5
-    ORIENT = 6
-    GRAPH = 7
-    END = 8
-    SPIN = 9
+
+    # Parking Lot
+    CANCER = 4
+    SPIN = 5
+    TURN = 6
+    MTG = 7
+
+    # Graph
+    GRAPH = 8
+    ORIENT = 9
+    END = 10

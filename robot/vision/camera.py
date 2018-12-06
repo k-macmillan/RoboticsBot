@@ -54,7 +54,7 @@ class CameraController(Node):
         self.state_topic = state_topic
 
         self.verbose = verbose
-        self.state = State.TESTICULAR_CANCER
+        self.state = State.CANCER
         self.bridge = CvBridge()
 
         poi_publisher = ros.Publisher(
@@ -101,7 +101,7 @@ class CameraController(Node):
         if self.state == State.ON_PATH:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.TESTICULAR_CANCER or self.state == State.SPIN or self.state == State.OBSTACLE:
+        elif self.state == State.CANCER or self.state == State.SPIN or self.state == State.OBSTACLE:
             # Determine if there is an obstacle directly in front of the robot.
             self.cancer.process_image(hsv_frame)
             # Determine if/where the lot exit is in the frame.

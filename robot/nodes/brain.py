@@ -21,8 +21,8 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.TESTICULAR_CANCER
-        self.last_state = State.TESTICULAR_CANCER
+        self.state = State.CANCER
+        self.last_state = State.CANCER
         self.last_error = 1000.0
         self.rl_count = 0
         self.timer_counter = 0
@@ -75,7 +75,7 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
-        elif self.state == State.TESTICULAR_CANCER:
+        elif self.state == State.CANCER:
             if msg.data == POI['OBSTACLE']:
                 pass
             elif msg.data == POI['EXIT_LOT']:
@@ -87,7 +87,7 @@ class Brain(Node):
             print('*************** NO OBSTACLES IN VIEW ***************')
             self.spun = False
             self.obst_rot = False
-            self.transition(State.TESTICULAR_CANCER)
+            self.transition(State.CANCER)
             # self.__forceCorrectPath(0.0)
 
     def __goalPath(self, msg):
@@ -137,7 +137,7 @@ class Brain(Node):
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         elif self.state == State.OBSTACLE:
             return self.__obstacleAvoidance()
-        elif self.state == State.TESTICULAR_CANCER:
+        elif self.state == State.CANCER:
             # We are assuming it is impossible to reach this state if there is
             # an obstacle in front of us
             if error < 1000.0:
@@ -173,7 +173,7 @@ class Brain(Node):
                 self.transition(State.ON_PATH)
             else:
                 self.rl_count = 2
-                self.transition(State.TESTICULAR_CANCER)
+                self.transition(State.CANCER)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
         print('I\'m in state: ', self.state)
         return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
@@ -208,7 +208,7 @@ class Brain(Node):
             self.transition(State.OBSTACLE)
             self.__timerShutdown()
         elif self.last_error < 1000.0:
-            self.transition(State.TESTICULAR_CANCER)
+            self.transition(State.CANCER)
             self.__timerShutdown()
         else:
             self.timer_counter += 1
