@@ -114,7 +114,8 @@ class Brain(Node):
             pass
 
     def pathState(self):
-        if self.stoplight_POI:
+        # Tick vs Tock
+        if self.stoplight_POI and self.rl_count < 4:
             self.transition(State.STOPPING)
         else:
             self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
@@ -188,7 +189,7 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.0), self.timerRLShutdown)
+                ros.Duration(secs=0.9), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
