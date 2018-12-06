@@ -19,7 +19,7 @@ class GoalCamera(Camera):
     # The threshold maximum value.
     THRESH_MAX = 255
     # The minimum area of a contour required to be considered the goal.
-    MIN_GOAL_AREA = 200
+    MIN_GOAL_AREA = 400
 
     def __init__(self, error_pub, poi_pub, verbose=False):
         """Construct a GoalCamera.

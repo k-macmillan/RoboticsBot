@@ -20,7 +20,7 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.ON_PATH
+        self.state = State.CANCER
         self.rl_count = 0
         self.spin_timer_counter = 0
 
@@ -74,6 +74,9 @@ class Brain(Node):
         self.path_error = msg.data
 
     def topicGoal(self, msg):
+        # We require a bootstrap.
+        if self.state_timer is None:
+            self.stateTimer()
         self.goal_error = msg.data
 
     def topicPOI(self, msg):
@@ -152,6 +155,7 @@ class Brain(Node):
         self.startSpinTimer()
 
     def turnState(self):
+        print('Obstacle POI:', self.obstacle_POI)
         if self.obstacle_POI:
             self.setWheels(self.base_sp * self.turn_dir,
                            -self.base_sp * self.turn_dir)
