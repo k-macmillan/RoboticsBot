@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 
+from random import random
 from time import sleep
 
 import rospy as ros
@@ -25,6 +26,7 @@ class Brain(Node):
         self.rl_count = 0
         self.timer_counter = 0
         self.timer = None
+        self.obst_rot = ''
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.state_pub = ros.Publisher(
@@ -62,8 +64,8 @@ class Brain(Node):
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
         """
-        if msg.data == POI[
-                'STOPLIGHT'] and self.state == State.ON_PATH and self.rl_count < 2:
+        if msg.data == POI['STOPLIGHT'] and\
+                self.state == State.ON_PATH and self.rl_count < 2:
             self.transition(State.STOPPING)
             if self.rl_count == 1:
                 self.w1, self.w2 = self.__stateHandler(0)
@@ -111,6 +113,8 @@ class Brain(Node):
             # Adjust based on camera (error)
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         elif self.state == State.OBSTACLE:
+            if self.obst_rot == '':
+                left = bool(random.getrandbits(1))
             return self.__obstacleAvoidance()
         elif self.state == State.TESTICULAR_CANCER:
             # We are assuming it is impossible to reach this state if there is
