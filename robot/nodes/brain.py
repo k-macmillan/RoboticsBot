@@ -74,7 +74,7 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
-        elif msg.data == POI['OBSTACLE']:
+        elif msg.data == POI['OBSTACLE'] and self.state != State.SPIN:
             # self.spun = False
             self.transition(State.OBSTACLE)
             self.__forceCorrectPath(0.0)
