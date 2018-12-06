@@ -132,8 +132,6 @@ class CameraController(Node):
         enum.
         """
         state = State(state.data)
-        if self.verbose:
-            print('Camera: State update:', self.state, '->', state)
         self.state = state
 
     def stop(self):
