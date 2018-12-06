@@ -23,7 +23,6 @@ class Brain(Node):
         self.state = State.CANCER
         self.rl_count = 0
         self.spin_timer_counter = 0
-        self.wtf = 0
 
         # Timer vars
         self.state_timer = None
@@ -91,10 +90,10 @@ class Brain(Node):
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH:
             self.stoplight_POI = True
         elif msg.data == POI['OBSTACLE']:
-            self.wtf+= 1
-            print('OBSTRUCTED', self.wtf)
+            # print('OBSTRUCTED')
             self.obstacle_POI = True
         elif msg.data == POI['NO_OBSTACLE']:
+            # print('\tNO OBSTRUCTION')
             self.obstacle_POI = False
         elif msg.data == POI['EXIT_LOT']:
             self.goal_POI = True
@@ -161,6 +160,8 @@ class Brain(Node):
         if self.obstacle_POI:
             self.setWheels(self.base_sp * self.turn_dir,
                            -self.base_sp * self.turn_dir)
+        else:
+            self.transition(State.CANCER)
 
     def mtgState(self):
         self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,

@@ -18,7 +18,7 @@ class Robot(object):
 
     def initNodes(self):
         """Add each node to the node manager."""
-        # self.nm.add_node(Wheels())
+        self.nm.add_node(Wheels())
         self.nm.add_node(Brain(verbose=self.verbose))
         self.nm.add_node(CameraController(TOPIC['CAMERA_FEED'],
                                           TOPIC['ROBOT_STATE'],
