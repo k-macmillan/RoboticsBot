@@ -32,6 +32,9 @@ class CancerousCamera(Camera):
         blue_low = np.array([100, 80, 100])
         blue_high = np.array([130, 255, 255])
 
+        yellow_low = np.array([10, 0, 0])
+        yellow_high = np.array([50, 255, 255])
+
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
         green_mask = cv2.erode(
             green_mask,
@@ -52,19 +55,34 @@ class CancerousCamera(Camera):
             cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
             iterations=1)
 
+        yellow_mask = cv2.inRange(hsv_image, yellow_low, yellow_high)
+        yellow_mask = cv2.erode(
+            yellow_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        yellow_mask = cv2.dilate(
+            yellow_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
+
         if self.verbose:
             cv2.namedWindow('Obstacle G Mask', cv2.WINDOW_NORMAL)
             cv2.imshow('Obstacle G Mask', green_mask)
             cv2.namedWindow('Obstacle B Mask', cv2.WINDOW_NORMAL)
             cv2.imshow('Obstacle B Mask', blue_mask)
+            cv2.namedWindow('Obstacle Y Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Obstacle Y Mask', yellow_mask)
 
-        # Join the two masks.
+        # Join the two masks. This filters everything out but the "good" stuff
         mask = green_mask + blue_mask
 
         # Swap 0 and 255 values in the combined mask.
         mask[mask == 0] = 1
         mask[mask >= 255] = 0
         mask[mask == 1] = 255
+
+        mask = mask + yellow_mask
+        mask[mask >= 255] = 255
 
         msg = String()
         if np.sum(mask) / 255 >= self.OBSTRUCTION_TOLERANCE:
@@ -74,5 +92,5 @@ class CancerousCamera(Camera):
         self.publisher.publish(msg)
 
         if self.verbose:
-            cv2.namedWindow('Obstacle G+B Mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('Obstacle G+B Mask', mask)
+            cv2.namedWindow('Obstacle G+B-Y Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Obstacle G+B-Y Mask', mask)
