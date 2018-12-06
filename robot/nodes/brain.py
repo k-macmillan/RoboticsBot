@@ -26,7 +26,7 @@ class Brain(Node):
         self.rl_count = 0
         self.timer_counter = 0
         self.timer = None
-        self.obst_rot = ''
+        self.obst_rot = False
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.state_pub = ros.Publisher(
@@ -75,6 +75,11 @@ class Brain(Node):
                 self.wheel_speeds.publish(wheels)
         elif msg.data == POI['OBSTACLE']:
             self.transition(State.OBSTACLE)
+            self.__forceCorrectPath(0.0)
+        elif msg.data == POI['NO_OBSTACLE']:
+            self.obst_rot = False
+            self.transition(State.TESTICULAR_CANCER)
+            # self.__forceCorrectPath(0.0)
 
     def __goalPath(self, msg):
         self.last_error = msg.data
@@ -98,6 +103,14 @@ class Brain(Node):
         wheels.data = [self.w1, self.w2]
         self.wheel_speeds.publish(wheels)
 
+    def __forceCorrectPath(self, error):
+        """For the times we don't call correctPath()..."""
+        self.w1, self.w2 = self.__stateHandler(error)
+
+        wheels = Float32MultiArray()
+        wheels.data = [self.w1, self.w2]
+        self.wheel_speeds.publish(wheels)
+
     def __stateHandler(self, error):
         """Handle the current state of our robot.
 
@@ -113,8 +126,6 @@ class Brain(Node):
             # Adjust based on camera (error)
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
         elif self.state == State.OBSTACLE:
-            if self.obst_rot == '':
-                left = bool(random.getrandbits(1))
             return self.__obstacleAvoidance()
         elif self.state == State.TESTICULAR_CANCER:
             # We are assuming it is impossible to reach this state if there is
@@ -160,8 +171,13 @@ class Brain(Node):
         # elif self.state == graph
 
     def __obstacleAvoidance(self):
-        # stub return:
-        return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
+        if not self.obst_rot:
+            self.obst_rot = True
+            multiplier = 1
+            if bool(random.getrandbits(1)):
+                multiplier = -1
+        return self.DL.calcWheelSpeeds(self.w1 * multiplier,
+                                       self.w2 * -multiplier, 0.0)
 
     def __start_timer(self):
         if self.timer is None:
