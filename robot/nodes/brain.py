@@ -26,14 +26,15 @@ class Brain(Node):
         self.last_error = 1000.0
         self.rl_count = 0
         self.timer_counter = 0
-        self.timer = None
+        self.spin_spin_timer = None
         self.obst_rot = False
         self.spun = False
 
         # POI updates & state stuff
-        self.obstacle = False
-        self.exit = False
+        self.obstacle_POI = False
+        self.goal_POI = False
         self.goal_error = 0.0
+        self.turn_dir = 1
 
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
@@ -90,13 +91,13 @@ class Brain(Node):
                     self.wheel_speeds.publish(wheels)
         # Paradigm shift in state handling
         elif msg.data == POI['OBSTACLE']:
-            self.obstacle = True
+            self.obstacle_POI = True
         elif msg.data == POI['NO_OBSTACLE']:
-            self.obstacle = False
+            self.obstacle_POI = False
         elif msg.data == POI['EXIT_LOT']:
-            self.exit = True
+            self.goal_POI = True
         elif msg.data == POI['NO_EXIT_LOT']:
-            self.exit = False
+            self.goal_POI = False
 
     def stateTimer(self):
         if self.state_timer is None:
@@ -116,22 +117,25 @@ class Brain(Node):
             pass
 
     def cancerState(self):
-        if self.obstacle:
+        if self.obstacle_POI:
             self.transition(State.SPIN)
-        elif self.exit:
+        elif self.goal_POI:
             self.transition(State.MTG)
         else:
             self.setWheels(self.base_sp, self.base_sp)
 
     def spinState(self):
-        pass
+        self.setWheels(self.base_sp, -self.base_sp)
+        self.startSpinTimer()
 
     def turnState(self):
-        pass
+        if self.obstacle:
+            self.setWheels(self.base_sp * self.turn_dir,
+                           -self.base_sp * self.turn_dir)
 
     def mtgState(self):
-
-        pass
+        self.w1, self.w2 = self.DL.calcWheelSpeeds(self.goal_error)
+        self.setWheels(self.w1, self.w2)
 
     def setWheels(self, w1=None, w2=None):
         if w1 is None or w2 is None:
@@ -152,7 +156,6 @@ class Brain(Node):
         wheels = Float32MultiArray()
         wheels.data = [self.w1, self.w2]
         self.wheel_speeds.publish(wheels)
-
 
     def stateHandler(self, error):
         """Handle the current state of our robot.
@@ -211,27 +214,30 @@ class Brain(Node):
         return self.DL.calcWheelSpeeds(self.w1 * self.multiplier,
                                        self.w2 * -self.multiplier, 0.0)
 
-    def start_timer(self):
-        if self.timer is None:
-            self.timer = ros.Timer(
-                ros.Duration(secs=0.01), self.timerCallback)
+    def startSpinTimer(self):
+        if self.spin_timer is None:
+            self.spin_timer = ros.Timer(
+                ros.Duration(secs=0.01), self.timerSpinCallback)
 
-    def timerCallback(self, event):
+    def timerSpinCallback(self, event):
         if self.timer_counter > 365:
-            self.transition(State.OBSTACLE)
-            self.timerShutdown()
-        elif self.last_error < 1000.0:
-            self.transition(State.CANCER)
-            self.timerShutdown()
+            self.timerSpinShutdown()
+            # Set turn direction and set state to TURN
+            if bool(random.getrandbits(1)):
+                self.turn_dir = 1
+            else:
+                self.turn_dir = -1
+            self.transition(State.TURN)
+        elif not self.obstacle_POI and self.goal_POI:
+            self.timerSpinShutdown()
+            self.transition(State.MTG)
         else:
-            self.timer_counter += 1
+            self.spin_timer_counter += 1
 
-    def timerShutdown(self):
-        self.timer.shutdown()
-        self.timer_counter = 0
-        self.timer = None
+    def timerSpinShutdown(self):
+        self.spin_timer.shutdown()
+        self.spin_timer = None
+        self.spin_timer_counter = 0
         self.w1 = self.base_sp
         self.w2 = self.base_sp
-        wheels = Float32MultiArray()
-        wheels.data = [0.0, 0.0]
-        self.wheel_speeds.publish(wheels)
+        self.setWheels(0.0, 0.0)
