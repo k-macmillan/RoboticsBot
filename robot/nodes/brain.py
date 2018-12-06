@@ -225,7 +225,7 @@ class Brain(Node):
                 ros.Duration(secs=0.01), self.timerSpinCallback)
 
     def timerSpinCallback(self, event):
-        if self.spin_timer_counter > 365:
+        if self.spin_timer_counter > 500:
             self.timerSpinShutdown()
             # Set turn direction and set state to TURN
             if bool(random.getrandbits(1)):
