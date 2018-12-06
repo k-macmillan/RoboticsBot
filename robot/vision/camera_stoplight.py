@@ -49,7 +49,7 @@ class StoplightCamera(Camera):
         mask = w_mask + blk_mask
         # Swap 0 and 255 values...
         mask[mask == 0] = 1
-        mask[mask == 255] = 0
+        mask[mask >= 255] = 0
         mask[mask == 1] = 255
 
         # We see a stoplight if there are more than some number of red pixels.

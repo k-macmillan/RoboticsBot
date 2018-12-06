@@ -53,7 +53,7 @@ class CancerousCamera(Camera):
 
         # Swap 0 and 255 values in the combined mask.
         mask[mask == 0] = 1
-        mask[mask == 255] = 0
+        mask[mask >= 255] = 0
         mask[mask == 1] = 255
 
         msg = String()
