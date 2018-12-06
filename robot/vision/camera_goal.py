@@ -54,8 +54,8 @@ class GoalCamera(Camera):
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
 
         if self.verbose:
-            cv2.namedWindow('GoalCamera-mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('GoalCamera-mask', blue_mask)
+            cv2.namedWindow('Goal B Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Goal B Mask', blue_mask)
 
         _, contours, _ = cv2.findContours(blue_mask, 1, cv2.CHAIN_APPROX_SIMPLE)
 

@@ -32,8 +32,8 @@ class LaneCamera(Camera):
         mask = cv2.inRange(cropped, white_low, white_high)
 
         if self.verbose:
-            cv2.namedWindow('LaneCamera-mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera-mask', mask)
+            cv2.namedWindow('Lane W Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Lane W Mask', mask)
 
         # Find contours in the ROI mask itself.
         _, contours, _ = cv2.findContours(mask, 1, cv2.CHAIN_APPROX_SIMPLE)
@@ -57,14 +57,6 @@ class LaneCamera(Camera):
                 else:
                     fraction = -(image_center - cx) / image_center
 
-                if self.verbose:
-                    print('LaneCamera: contour centroid: ({}, {})'.format(
-                        cx, cy))
-                    print('LaneCamera: control signal:', fraction)
-
                 msg = Float32()
                 msg.data = fraction
                 self.publisher.publish(msg)
-
-        elif self.verbose:
-            print('LaneCamera: failed to find contours.')
