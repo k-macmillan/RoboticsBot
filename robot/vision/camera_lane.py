@@ -29,6 +29,14 @@ class LaneCamera(Camera):
         white_high = np.array([255, self.WHITE_SENSITIVITY, 255])
 
         mask = cv2.inRange(hsv_image, white_low, white_high)
+        mask = cv2.erode(
+            mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        mask = cv2.dilate(
+            mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
 
         if self.verbose:
             cv2.namedWindow('Lane W Mask', cv2.WINDOW_NORMAL)

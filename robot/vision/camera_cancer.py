@@ -29,11 +29,28 @@ class CancerousCamera(Camera):
         green_low = np.array([40, 25, 50])
         green_high = np.array([80, 255, 255])
 
-        blue_low = np.array([100, 0, 100])
+        blue_low = np.array([100, 80, 100])
         blue_high = np.array([130, 255, 255])
 
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
+        green_mask = cv2.erode(
+            green_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        green_mask = cv2.dilate(
+            green_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
+
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
+        blue_mask = cv2.erode(
+            blue_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        blue_mask = cv2.dilate(
+            blue_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
 
         if self.verbose:
             cv2.namedWindow('Obstacle G Mask', cv2.WINDOW_NORMAL)

@@ -36,7 +36,23 @@ class StoplightCamera(Camera):
         blk_high = np.array([180, 255, 200])
 
         w_mask = cv2.inRange(hsv_image, w_low, w_high)
+        w_mask = cv2.erode(
+            w_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        w_mask = cv2.dilate(
+            w_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
         blk_mask = cv2.inRange(hsv_image, blk_low, blk_high)
+        blk_mask = cv2.erode(
+            blk_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
+            iterations=1)
+        blk_mask = cv2.dilate(
+            blk_mask,
+            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
+            iterations=1)
 
         if self.verbose:
             cv2.namedWindow('Stoplight W Mask', cv2.WINDOW_NORMAL)
