@@ -22,6 +22,7 @@ class Brain(Node):
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.TESTICULAR_CANCER
+        self.last_state = State.TESTICULAR_CANCER
         self.last_error = 1000.0
         self.rl_count = 0
         self.timer_counter = 0
@@ -74,14 +75,14 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
-        elif msg.data == POI['OBSTACLE'] and self.state != State.SPIN:
+        elif msg.data == POI['OBSTACLE'] and self.state != State.SPIN and self.state != State.OBSTACLE:
             # self.spun = False
             self.transition(State.OBSTACLE)
             self.__forceCorrectPath(0.0)
-        elif msg.data == POI['NO_OBSTACLE']:
+        elif msg.data == POI['NO_OBSTACLE'] and self.state == State.OBSTACLE:
             self.spun = False
             self.obst_rot = False
-            self.transition(State.TESTICULAR_CANCER)
+            self.transition(self.last_state)
             # self.__forceCorrectPath(0.0)
 
     def __goalPath(self, msg):
@@ -186,6 +187,7 @@ class Brain(Node):
             self.obst_rot = True
             if bool(random.getrandbits(1)):
                 multiplier = -1
+        print('Multiplier: ',multiplier)
         return self.DL.calcWheelSpeeds(self.w1 * multiplier,
                                        self.w2 * -multiplier, 0.0)
 
