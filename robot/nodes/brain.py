@@ -30,9 +30,10 @@ class Brain(Node):
         self.obst_rot = False
         self.spun = False
 
-        # POI updates
+        # POI updates & state stuff
         self.obstacle = False
         self.exit = False
+        self.goal_error = 0.0
 
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
@@ -46,9 +47,10 @@ class Brain(Node):
     def init_node(self):
         """Perform custom Node initialization."""
         # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
-        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__goalPath)
-        ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
-                       self.__determineState)
+        ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__topicGoal)
+        ros.Subscriber(TOPIC['POINT_OF_INTEREST'],
+                       String,
+                       self.__topicPOI)
 
     def transition(self, state):
         """Transition the robot's state to that given.
@@ -63,7 +65,10 @@ class Brain(Node):
         msg.data = self.state.value
         self.state_pub.publish(msg)
 
-    def __determineState(self, msg):
+    def __topicGoal(self, msg):
+        self.goal_error = msg.data
+
+    def __topicPOI(self, msg):
         """Handle a Point of Interest notification.
 
         This determines the robot's current state.
@@ -75,11 +80,14 @@ class Brain(Node):
                 self.state == State.ON_PATH and self.rl_count < 2:
             self.transition(State.STOPPING)
             if self.rl_count == 1:
-                self.w1, self.w2 = self.__stateHandler(0)
-
-                wheels = Float32MultiArray()
-                wheels.data = [self.w1, self.w2]
-                self.wheel_speeds.publish(wheels)
+                w1, w2 = self.__stateHandler(0)
+                # We only want to change self.w if not in CANCER
+                if self.state != State.CANCER:
+                    self.w1 = w1
+                    self.w2 = w2
+                    wheels = Float32MultiArray()
+                    wheels.data = [self.w1, self.w2]
+                    self.wheel_speeds.publish(wheels)
         # Paradigm shift in state handling
         elif msg.data == POI['OBSTACLE']:
             self.obstacle = True
@@ -90,14 +98,47 @@ class Brain(Node):
         elif msg.data == POI['NO_EXIT_LOT']:
             self.exit = False
 
-    def __goalPath(self, msg):
-        self.last_error = msg.data
-        # print('Error in state handler: {}'.format(self.last_error))
+    def __stateTimer(self):
+        if self.state_timer is None:
+            self.state_timer = ros.Timer(
+                ros.Duration(secs=0.01), self.__stateHandler2)
 
-        self.w1, self.w2 = self.__stateHandler(msg.data)
+    def __stateHandler2(self):
+        if self.state == State.CANCER:
+            self.__cancerState()
+        elif self.state == State.SPIN:
+            self.__spinState()
+        elif self.state == State.TURN:
+            self.__turnState()
+        elif self.state == State.MTG:
+            self.__mtgState()
+        elif self.state == State.GRAPH:
+            pass
 
+    def __cancerState(self):
+        if self.obstacle:
+            self.transition(State.SPIN)
+        elif self.exit:
+            self.transition(State.MTG)
+        else:
+            self.__setWheels(self.base_sp, self.base_sp)
+
+    def __spinState(self):
+        pass
+
+    def __turnState(self):
+        pass
+
+    def __mtgState(self):
+
+        pass
+
+    def __setWheels(self, w1=None, w2=None):
+        if w1 is None or w2 is None:
+            w1 = self.w1
+            w2 = self.w2
         wheels = Float32MultiArray()
-        wheels.data = [self.w1, self.w2]
+        wheels.data = [w1, w2]
         self.wheel_speeds.publish(wheels)
 
     def __correctPath(self, msg):
@@ -112,13 +153,6 @@ class Brain(Node):
         wheels.data = [self.w1, self.w2]
         self.wheel_speeds.publish(wheels)
 
-    def __forceCorrectPath(self, error):
-        """For the times we don't call correctPath()..."""
-        self.w1, self.w2 = self.__stateHandler(error)
-
-        wheels = Float32MultiArray()
-        wheels.data = [self.w1, self.w2]
-        self.wheel_speeds.publish(wheels)
 
     def __stateHandler(self, error):
         """Handle the current state of our robot.
@@ -126,7 +160,6 @@ class Brain(Node):
         Returns wheel velocities. Unfortunately this is spaghetti code. It was
         that or one long, ugly if/elif branch with sub if/elif branches.
         """
-        print(self.state)
         if self.state == State.START:
             self.transition(State.ON_PATH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
@@ -135,30 +168,10 @@ class Brain(Node):
         elif self.state == State.ON_PATH:
             # Adjust based on camera (error)
             return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-        elif self.state == State.OBSTACLE:
-            return self.__obstacleAvoidance()
         elif self.state == State.CANCER:
-            # We are assuming it is impossible to reach this state if there is
-            # an obstacle in front of us
-            if error < 1000.0:
-                # Centroid found
-                return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-            else:
-                # Still searching, no goal found
-                # print('SETTING SPIN STATE')
-                # self.transition(State.SPIN)
-                return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
-        elif self.state == State.SPIN:
-            self.__start_timer()
-            return self.base_sp * 100, -self.base_sp * 100
-        elif self.state == State.END:
-            return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
-        else:
-            print('error: ', error)
-            print('state: ', self.state)
-            return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
-            # elif self.state == State.ORIENT
-            # elif self.state == State.GRAPH
+            # Begin state timer that we will use from here on out
+            self.__stateTimer()
+            return 0.0, 0.0
 
     def __stopStateHandler(self, error):
         """Handle the stopped state of our robot."""
