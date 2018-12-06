@@ -29,6 +29,11 @@ class Brain(Node):
         self.timer = None
         self.obst_rot = False
         self.spun = False
+
+        # POI updates
+        self.obstacle = False
+        self.exit = False
+
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.state_pub = ros.Publisher(
@@ -75,20 +80,15 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
-        elif self.state == State.CANCER:
-            if msg.data == POI['OBSTACLE']:
-                pass
-            elif msg.data == POI['EXIT_LOT']:
-                pass
-            # self.spun = False
-            self.transition(State.OBSTACLE)
-            self.__forceCorrectPath(0.0)
-        elif msg.data == POI['NO_OBSTACLE'] and self.state == State.OBSTACLE:
-            print('*************** NO OBSTACLES IN VIEW ***************')
-            self.spun = False
-            self.obst_rot = False
-            self.transition(State.CANCER)
-            # self.__forceCorrectPath(0.0)
+        # Paradigm shift in state handling
+        elif msg.data == POI['OBSTACLE']:
+            self.obstacle = True
+        elif msg.data == POI['NO_OBSTACLE']:
+            self.obstacle = False
+        elif msg.data == POI['EXIT_LOT']:
+            self.exit = True
+        elif msg.data == POI['NO_EXIT_LOT']:
+            self.exit = False
 
     def __goalPath(self, msg):
         self.last_error = msg.data
