@@ -54,7 +54,7 @@ class CameraController(Node):
         self.state_topic = state_topic
 
         self.verbose = verbose
-        self.state = State.START
+        self.state = State.CANCER
         self.bridge = CvBridge()
 
         poi_publisher = ros.Publisher(
@@ -66,7 +66,7 @@ class CameraController(Node):
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=False)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=False)
-        self.cancer = CancerousCamera(poi_publisher, verbose=verbose)
+        self.cancer = CancerousCamera(poi_publisher, verbose=False)
         self.goal_cam = GoalCamera(
             goal_publisher, poi_publisher, verbose=verbose)
 
