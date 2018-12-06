@@ -29,26 +29,13 @@ class LaneCamera(Camera):
         white_high = np.array([255, self.WHITE_SENSITIVITY, 255])
 
         mask = cv2.inRange(cropped, white_low, white_high)
-        masked = cv2.bitwise_and(cropped, cropped, mask=mask)
 
         if self.verbose:
             cv2.namedWindow('LaneCamera-mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera-mask',
-                       cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.imshow('LaneCamera-mask', mask)
 
-        # Convert to grayscale.
-        # TODO: BGR to grayscale?! This is an HSV image...
-        grayscale = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-        # Threshold the grays.
-        _, thresh = cv2.threshold(grayscale, self.THRESH_VALUE,
-                                  self.THRESH_MAX, cv2.THRESH_BINARY)
-
-        if self.verbose:
-            cv2.namedWindow('LaneCamera-thresh', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera-thresh', thresh)
-
-        # Find contours in the ROI.
-        _, contours, _ = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
+        # Find contours in the ROI mask itself.
+        _, contours, _ = cv2.findContours(mask, 1, cv2.CHAIN_APPROX_SIMPLE)
 
         if contours:
             # Find the biggest contour.
@@ -78,15 +65,5 @@ class LaneCamera(Camera):
                 msg.data = fraction
                 self.publisher.publish(msg)
 
-                # Draw the contours in green.
-                cv2.drawContours(cropped, contours, -1, (0, 255, 0), 2)
-                # Draw the biggest contour centroid in red.
-                cv2.circle(
-                    cropped, (cx, cy), 10, (255, 0, 0), lineType=cv2.LINE_AA)
         elif self.verbose:
             print('LaneCamera: failed to find contours.')
-
-        if self.verbose:
-            cv2.namedWindow('LaneCamera-centroid', cv2.WINDOW_NORMAL)
-            cv2.imshow('LaneCamera-centroid',
-                       cv2.cvtColor(cropped, cv2.COLOR_HSV2BGR))

@@ -52,24 +52,12 @@ class GoalCamera(Camera):
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
-        # Mask out only the greens. Everything else will be black.
-        masked = cv2.bitwise_and(hsv_image, hsv_image, mask=blue_mask)
 
         if self.verbose:
             cv2.namedWindow('GoalCamera-mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('GoalCamera-mask',
-                       cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.imshow('GoalCamera-mask', blue_mask)
 
-        # Convert to grayscale.
-        grayscale = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-        # Threshold the grays.
-        _, thresh = cv2.threshold(grayscale, self.THRESH_VALUE,
-                                  self.THRESH_MAX, cv2.THRESH_BINARY)
-        if self.verbose:
-            cv2.namedWindow('GoalCamera-thresh', cv2.WINDOW_NORMAL)
-            cv2.imshow('GoalCamera-thresh', thresh)
-
-        _, contours, _ = cv2.findContours(thresh, 1, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(blue_mask, 1, cv2.CHAIN_APPROX_SIMPLE)
 
         # If we find any contours, find the biggest and call that the goal.
         if contours:
