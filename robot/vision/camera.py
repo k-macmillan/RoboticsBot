@@ -65,8 +65,8 @@ class CameraController(Node):
             TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=False)
-        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=False)
-        self.cancer = CancerousCamera(poi_publisher, verbose=False)
+        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
+        self.cancer = CancerousCamera(poi_publisher, verbose=verbose)
         self.goal_cam = GoalCamera(
             goal_publisher, poi_publisher, verbose=verbose)
 
@@ -99,7 +99,7 @@ class CameraController(Node):
         # Blur the image before doing anything.
         hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 
-        if self.state == State.ON_PATH:
+        if self.state == State.ON_PATH or self.state == State.STOPPING:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
         elif self.state == State.CANCER or                                    \

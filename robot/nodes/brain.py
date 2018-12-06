@@ -126,6 +126,7 @@ class Brain(Node):
 
     def stoppingState(self):
         if not self.stoplight_POI:
+            print('NO STOPLIGHT')
             self.rlTimer()
             self.setWheels(0.0, 0.0)
             self.transition(State.STOPPED)
@@ -186,10 +187,11 @@ class Brain(Node):
 
     def rlTimer(self):
         if self.rl_timer is None:
+            print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.0), self.timerRLShutdown)
+                ros.Duration(secs=1.5), self.timerRLShutdown)
 
-    def timerRLShutdown(self):
+    def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
         self.rl_timer = None
         self.rl_count += 1
