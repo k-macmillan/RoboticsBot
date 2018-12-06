@@ -26,6 +26,7 @@ TOPIC = {
 # Camera POI strings
 POI = {
     'STOPLIGHT': 'stoplight',
+    'NO_STOPLIGHT': 'no stoplight',
     'EXIT_LOT': 'exit parking lot',
     'NO_EXIT_LOT': 'no exit parking lot',
     'GRAPH_NODE': 'graph node',
@@ -52,7 +53,6 @@ class State(Enum):
 
     """
     # Line follow
-    START = 0
     ON_PATH = 1
     STOPPING = 2
     STOPPED = 3
