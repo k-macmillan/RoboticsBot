@@ -160,13 +160,10 @@ class Brain(Node):
                            -self.base_sp * self.turn_dir)
 
     def mtgState(self):
-        if self.obstacle_POI:
-            self.transition(State.SPIN)
-        else:
-            self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
-                                                       self.w2,
-                                                       self.goal_error)
-            self.setWheels(self.w1, self.w2)
+        self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
+                                                   self.w2,
+                                                   self.goal_error)
+        self.setWheels(self.w1, self.w2)
 
     # Helper functions
 
