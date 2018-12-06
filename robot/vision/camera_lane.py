@@ -22,14 +22,13 @@ class LaneCamera(Camera):
     def process_image(self, hsv_image):
         """Implement lane detection and publishes the lane centroid."""
         # Crop the image to deal only with whatever is directly in front of us.
-        # cropped = hsv_image[self.REGION_OF_INTEREST].copy()
-        cropped = hsv_image
+        hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
         # Mask out everything but white.
         white_low = np.array([0, 0, 255 - self.WHITE_SENSITIVITY])
         white_high = np.array([255, self.WHITE_SENSITIVITY, 255])
 
-        mask = cv2.inRange(cropped, white_low, white_high)
+        mask = cv2.inRange(hsv_image, white_low, white_high)
 
         if self.verbose:
             cv2.namedWindow('Lane W Mask', cv2.WINDOW_NORMAL)

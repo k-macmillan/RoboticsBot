@@ -23,7 +23,7 @@ class CancerousCamera(Camera):
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
-        # hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
+        hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
         # These thresholds work for a light intensity of ~90lx on an S8
         green_low = np.array([60 - self.GREEN_SENSITIVITY, 10, 80])

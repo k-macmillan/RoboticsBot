@@ -25,8 +25,7 @@ class StoplightCamera(Camera):
             inspiration: https://stackoverflow.com/a/25401596
         """
         # Crop the image to deal only with whatever is directly in front of us.
-        # cropped = hsv_image[self.REGION_OF_INTEREST].copy()
-        cropped = hsv_image
+        hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
 
         # Mask out everything but white.
         w_low = np.array([0, 0, 255 - self.SENSITIVITY])
@@ -36,8 +35,8 @@ class StoplightCamera(Camera):
         blk_low = np.array([0, 0, 0])
         blk_high = np.array([180, 255, 200])
 
-        w_mask = cv2.inRange(cropped, w_low, w_high)
-        blk_mask = cv2.inRange(cropped, blk_low, blk_high)
+        w_mask = cv2.inRange(hsv_image, w_low, w_high)
+        blk_mask = cv2.inRange(hsv_image, blk_low, blk_high)
 
         if self.verbose:
             cv2.namedWindow('Stoplight W Mask', cv2.WINDOW_NORMAL)
