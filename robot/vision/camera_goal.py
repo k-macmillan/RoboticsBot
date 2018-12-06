@@ -47,8 +47,8 @@ class GoalCamera(Camera):
         goal to the center of the frame. If the goal is not visible, publish an
         absurd value.
         """
-        # These values are appropriate ~50 Lux.
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 100])
+        # These values are appropriate at max brightness.
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 40, 80])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
