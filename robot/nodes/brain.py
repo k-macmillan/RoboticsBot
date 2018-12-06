@@ -25,7 +25,7 @@ class Brain(Node):
         self.last_state = State.CANCER
         self.last_error = 1000.0
         self.rl_count = 0
-        self.timer_counter = 0
+        self.spin_timer_counter = 0
         self.state_timer = None
         self.spin_timer = None
         self.obst_rot = False
@@ -68,6 +68,9 @@ class Brain(Node):
         self.state_pub.publish(msg)
 
     def topicGoal(self, msg):
+        # We require a bootstrap.
+        if self.state_timer is None:
+            self.stateHandler(0)
         self.goal_error = msg.data
 
     def topicPOI(self, msg):
@@ -102,10 +105,11 @@ class Brain(Node):
 
     def stateTimer(self):
         if self.state_timer is None:
+            print('Creating state timer')
             self.state_timer = ros.Timer(
                 ros.Duration(secs=0.01), self.stateHandler2)
 
-    def stateHandler2(self):
+    def stateHandler2(self, event):
         if self.state == State.CANCER:
             self.cancerState()
         elif self.state == State.SPIN:
@@ -130,7 +134,7 @@ class Brain(Node):
         self.startSpinTimer()
 
     def turnState(self):
-        if self.obstacle:
+        if self.obstacle_POI:
             self.setWheels(self.base_sp * self.turn_dir,
                            -self.base_sp * self.turn_dir)
 
@@ -221,7 +225,7 @@ class Brain(Node):
                 ros.Duration(secs=0.01), self.timerSpinCallback)
 
     def timerSpinCallback(self, event):
-        if self.timer_counter > 365:
+        if self.spin_timer_counter > 365:
             self.timerSpinShutdown()
             # Set turn direction and set state to TURN
             if bool(random.getrandbits(1)):
