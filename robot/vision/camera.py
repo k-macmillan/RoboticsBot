@@ -3,7 +3,6 @@ from __future__ import division, print_function
 import cv2
 import rospy as ros
 from cv_bridge import CvBridge, CvBridgeError
-from geometry_msgs.msg import Vector3
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float32, String, UInt8
 
@@ -55,22 +54,20 @@ class CameraController(Node):
         self.state_topic = state_topic
 
         self.verbose = verbose
-        self.state = State.START
+        self.state = State.TESTICULAR_CANCER
         self.bridge = CvBridge()
 
         poi_publisher = ros.Publisher(
             TOPIC['POINT_OF_INTEREST'], String, queue_size=1)
         lane_publisher = ros.Publisher(
             TOPIC['LANE_CENTROID'], Float32, queue_size=1)
-        gradient_publisher = ros.Publisher(
-            TOPIC['LOT_GRADIENT'], Vector3, queue_size=1)
         goal_publisher = ros.Publisher(
             TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
 
         self.lane_camera = LaneCamera(lane_publisher, verbose=False)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=False)
-        self.cancer = CancerousCamera(gradient_publisher, verbose=verbose)
-        self.goal_cam = GoalCamera(goal_publisher, verbose=verbose)
+        self.cancer = CancerousCamera(poi_publisher, verbose=verbose)
+        self.goal_cam = GoalCamera(goal_publisher, verbose=False)
 
     def init_node(self):
         """Perform custom Node initialization."""

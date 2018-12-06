@@ -2,6 +2,9 @@ from __future__ import division, print_function
 
 import cv2
 import numpy as np
+from std_msgs.msg import String
+
+from robot.common import POI
 
 from .camera_base import Camera
 
@@ -15,6 +18,8 @@ class CancerousCamera(Camera):
     GREEN_SENSITIVITY = 50
     # Sensitivity for the blue color detection.
     BLUE_SENSITIVITY = 40
+    # How many pixels of obstacle should count as an obstruction.
+    OBSTRUCTION_TOLERANCE = 20
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
@@ -31,13 +36,21 @@ class CancerousCamera(Camera):
         # Join the two masks.
         mask = green_mask + blue_mask
 
-        # TODO: find the right ROI for obstacles.
-        # TODO: Look for anything not blue or green in the ROI.
-        # TODO: Publish notifications for when there is and when there isn't
-        # an obstacle currently obstructing the robot.
+        # Swap 0 and 255 values in the combined mask.
+        mask[mask == 0] = 1
+        mask[mask == 255] = 0
+        mask[mask == 1] = 255
+
+        msg = String()
+        if np.sum(mask) / 255 >= self.OBSTRUCTION_TOLERANCE:
+            msg.data = POI['OBSTACLE']
+        else:
+            msg.data = POI['NO_OBSTACLE']
+        self.publisher.publish(msg)
 
         if self.verbose:
-            # Mask out only the greens. Everything else will be black.
+            print('obstructed:', np.sum(mask) / 255)
+            # Mask out only the greens and blues. Everything else will be black.
             masked = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
             cv2.namedWindow('ObstacleMask', cv2.WINDOW_NORMAL)
             cv2.imshow('ObstacleMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
