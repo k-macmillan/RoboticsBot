@@ -67,7 +67,8 @@ class CameraController(Node):
         self.lane_camera = LaneCamera(lane_publisher, verbose=False)
         self.stoplight_cam = StoplightCamera(poi_publisher, verbose=False)
         self.cancer = CancerousCamera(poi_publisher, verbose=verbose)
-        self.goal_cam = GoalCamera(goal_publisher, verbose=verbose)
+        self.goal_cam = GoalCamera(
+            goal_publisher, poi_publisher, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -101,7 +102,11 @@ class CameraController(Node):
         if self.state == State.ON_PATH:
             self.lane_camera.process_image(hsv_frame)
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.CANCER or self.state == State.SPIN or self.state == State.OBSTACLE:
+        # TODO: Pay more attention to the state transition diagram to determine
+        # when we should do each flavor of image processing.
+        elif self.state == State.CANCER or                                    \
+             self.state == State.SPIN or                                      \
+             self.state == State.OBSTACLE:
             # Determine if there is an obstacle directly in front of the robot.
             self.cancer.process_image(hsv_frame)
             # Determine if/where the lot exit is in the frame.
