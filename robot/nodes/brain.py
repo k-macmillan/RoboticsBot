@@ -124,18 +124,19 @@ class Brain(Node):
             self.setWheels(self.w1, self.w2)
 
     def stoppingState(self):
-        if self.stoplight_POI:
-            self.rlTimer()
+        if self.stoplight_POI and self.rl_count < 4:
             self.transition(State.STOPPED)
+            self.rlTimer()
 
     def stoppedState(self):
-        if self.rl_count % 2 == 1:
-            self.rlTimer()
-            self.setWheels(0.0, 0.0)
-        elif self.rl_count == 2:
-            self.transition(State.ON_PATH)
-        elif self.rl_count == 4:
-            self.transition(State.CANCER)
+        if self.rl_timer is not None:
+            if self.rl_count % 2 == 1:
+                self.rlTimer()
+                self.setWheels(0.0, 0.0)
+            elif self.rl_count == 2:
+                self.transition(State.ON_PATH)
+            elif self.rl_count == 4:
+                self.transition(State.CANCER)
 
     def cancerState(self):
         if self.obstacle_POI:
@@ -189,13 +190,20 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=0.9), self.timerRLShutdown)
+                ros.Duration(secs=1.0), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
-        self.rl_timer.shutdown()
-        self.rl_timer = None
         self.rl_count += 1
-        self.stoplight_POI = False
+        if self.rl_count % 2 == 1:
+            self.transition(State.STOPPED)
+        elif self.rl_count == 2:
+            self.rl_timer.shutdown()
+            self.rl_timer = None
+            self.stoplight_POI = False
+        elif self.rl_count == 4:
+            self.rl_timer.shutdown()
+            self.rl_timer = None
+            self.stoplight_POI = False
 
     def startSpinTimer(self):
         if self.spin_timer is None:
