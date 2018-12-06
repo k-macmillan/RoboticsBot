@@ -86,8 +86,6 @@ class Brain(Node):
         """
         if msg.data == POI['STOPLIGHT']:
             self.stoplight_POI = True
-        elif msg.data == POI['NO_STOPLIGHT']:
-            self.stoplight_POI = False
         elif msg.data == POI['OBSTACLE']:
             self.obstacle_POI = True
         elif msg.data == POI['NO_OBSTACLE']:
@@ -125,16 +123,17 @@ class Brain(Node):
             self.setWheels(self.w1, self.w2)
 
     def stoppingState(self):
-        if not self.stoplight_POI:
-            print('NO STOPLIGHT')
+        if self.stoplight_POI:
             self.rlTimer()
-            self.setWheels(0.0, 0.0)
             self.transition(State.STOPPED)
 
     def stoppedState(self):
-        if self.rl_count == 1:
-            self.transition(State.ON_PATH)
+        if self.rl_count % 2 == 1:
+            self.rlTimer()
+            self.setWheels(0.0, 0.0)
         elif self.rl_count == 2:
+            self.transition(State.ON_PATH)
+        elif self.rl_count == 4:
             self.transition(State.CANCER)
 
     def cancerState(self):
