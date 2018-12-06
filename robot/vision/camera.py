@@ -54,7 +54,7 @@ class CameraController(Node):
         self.state_topic = state_topic
 
         self.verbose = verbose
-        self.state = State.CANCER
+        self.state = State.START
         self.bridge = CvBridge()
 
         poi_publisher = ros.Publisher(

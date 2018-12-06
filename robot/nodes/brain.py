@@ -21,8 +21,8 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.CANCER
-        self.last_state = State.CANCER
+        self.state = State.START
+        self.last_state = State.START
         self.last_error = 1000.0
         self.rl_count = 0
         self.spin_timer_counter = 0
