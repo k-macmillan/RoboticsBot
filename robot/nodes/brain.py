@@ -84,7 +84,7 @@ class Brain(Node):
         :param msg: The point of interest notification.
         :type msg: std_msgs.msg.String
         """
-        if msg.data == POI['STOPLIGHT']:
+        if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH:
             self.stoplight_POI = True
         elif msg.data == POI['OBSTACLE']:
             self.obstacle_POI = True
@@ -188,7 +188,7 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.25), self.timerRLShutdown)
+                ros.Duration(secs=1.0), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
