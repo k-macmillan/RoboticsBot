@@ -188,12 +188,13 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.5), self.timerRLShutdown)
+                ros.Duration(secs=1.25), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
         self.rl_timer = None
         self.rl_count += 1
+        self.stoplight_POI = False
 
     def startSpinTimer(self):
         if self.spin_timer is None:
