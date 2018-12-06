@@ -75,14 +75,19 @@ class Brain(Node):
                 wheels = Float32MultiArray()
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
-        elif msg.data == POI['OBSTACLE'] and self.state != State.SPIN and self.state != State.OBSTACLE:
+        elif self.state == State.TESTICULAR_CANCER:
+            if msg.data == POI['OBSTACLE']:
+                pass
+            elif msg.data == POI['EXIT_LOT']:
+                pass
             # self.spun = False
             self.transition(State.OBSTACLE)
             self.__forceCorrectPath(0.0)
         elif msg.data == POI['NO_OBSTACLE'] and self.state == State.OBSTACLE:
+            print('*************** NO OBSTACLES IN VIEW ***************')
             self.spun = False
             self.obst_rot = False
-            self.transition(self.last_state)
+            self.transition(State.TESTICULAR_CANCER)
             # self.__forceCorrectPath(0.0)
 
     def __goalPath(self, msg):
@@ -182,14 +187,16 @@ class Brain(Node):
             self.transition(State.SPIN)
             self.__forceCorrectPath(0)
             return 0.0, 0.0
-        multiplier = 1
+
         if not self.obst_rot:
             self.obst_rot = True
             if bool(random.getrandbits(1)):
-                multiplier = -1
-        print('Multiplier: ',multiplier)
-        return self.DL.calcWheelSpeeds(self.w1 * multiplier,
-                                       self.w2 * -multiplier, 0.0)
+                self.multiplier = -1
+            else:
+                self.multiplier = 1
+        # print('Multiplier: ', self.multiplier)
+        return self.DL.calcWheelSpeeds(self.w1 * self.multiplier,
+                                       self.w2 * -self.multiplier, 0.0)
 
     def __start_timer(self):
         if self.timer is None:
@@ -197,15 +204,21 @@ class Brain(Node):
                 ros.Duration(secs=0.01), self.__timerCallback)
 
     def __timerCallback(self, event):
-        if self.timer_counter > 365 or self.last_error < 1000.0:
-            self.transition(self.last_state)
-            self.timer.shutdown()
-            self.timer_counter = 0
-            self.timer = None
-            self.w1 = self.base_sp
-            self.w2 = self.base_sp
-            wheels = Float32MultiArray()
-            wheels.data = [0.0, 0.0]
-            self.wheel_speeds.publish(wheels)
+        if self.timer_counter > 365:
+            self.transition(State.OBSTACLE)
+            self.__timerShutdown()
+        elif self.last_error < 1000.0:
+            self.transition(State.TESTICULAR_CANCER)
+            self.__timerShutdown()
         else:
             self.timer_counter += 1
+
+    def __timerShutdown(self):
+        self.timer.shutdown()
+        self.timer_counter = 0
+        self.timer = None
+        self.w1 = self.base_sp
+        self.w2 = self.base_sp
+        wheels = Float32MultiArray()
+        wheels.data = [0.0, 0.0]
+        self.wheel_speeds.publish(wheels)

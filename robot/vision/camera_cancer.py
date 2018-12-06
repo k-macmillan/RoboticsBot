@@ -19,7 +19,7 @@ class CancerousCamera(Camera):
     # Sensitivity for the blue color detection.
     BLUE_SENSITIVITY = 40
     # How many pixels of obstacle should count as an obstruction.
-    OBSTRUCTION_TOLERANCE = 20
+    OBSTRUCTION_TOLERANCE = 100
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""

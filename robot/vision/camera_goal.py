@@ -16,6 +16,7 @@ class GoalCamera(Camera):
     THRESH_VALUE = 70
     # The threshold maximum value.
     THRESH_MAX = 255
+    MIN_GOAL_AREA = 200
 
     def process_image(self, hsv_image):
         """Publish left/right relative position of the goal.
@@ -53,8 +54,10 @@ class GoalCamera(Camera):
         fraction = 1000.0
         if contours:
             c = max(contours, key=cv2.contourArea)
+            area = cv2.contourArea(c)
+            print('Goal contour area:', area)
             M = cv2.moments(c)
-            if M['m00'] != 0:
+            if area > self.MIN_GOAL_AREA and M['m00'] != 0:
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
 
