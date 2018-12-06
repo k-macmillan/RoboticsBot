@@ -15,7 +15,7 @@ class CancerousCamera(Camera):
     # The region where the obstacle would be directly in front of us.
     REGION_OF_INTEREST = (slice(450, 460, None), slice(0, None, None))
     # Sensitivity for the green color detection.
-    GREEN_SENSITIVITY = 50
+    GREEN_SENSITIVITY = 25
     # Sensitivity for the blue color detection.
     BLUE_SENSITIVITY = 40
     # How many pixels of obstacle should count as an obstruction.
@@ -24,10 +24,19 @@ class CancerousCamera(Camera):
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
         hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
-        green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
+
+        # I don't know what light intensity these work for.
+        # green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
+        # green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
+
+        # blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 100])
+        # blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
+
+        # These thresholds work for a light intensity of ~90lx on an S8
+        green_low = np.array([60 - self.GREEN_SENSITIVITY, 40, 80])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 100])
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 40, 80])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
@@ -50,7 +59,5 @@ class CancerousCamera(Camera):
 
         if self.verbose:
             print('obstructed:', np.sum(mask) / 255)
-            # Mask out only the greens and blues. Everything else will be black.
-            masked = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
             cv2.namedWindow('ObstacleMask', cv2.WINDOW_NORMAL)
-            cv2.imshow('ObstacleMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.imshow('ObstacleMask', mask)
