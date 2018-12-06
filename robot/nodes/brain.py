@@ -21,8 +21,8 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.START
-        self.last_state = State.START
+        self.state = State.ON_PATH
+        self.last_state = State.ON_PATH
         self.last_error = 1000.0
         self.rl_count = 0
         self.spin_timer_counter = 0
@@ -48,7 +48,7 @@ class Brain(Node):
 
     def init_node(self):
         """Perform custom Node initialization."""
-        # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.correctPath)
+        ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.correctPath)
         ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.topicGoal)
         ros.Subscriber(TOPIC['POINT_OF_INTEREST'],
                        String,
