@@ -23,7 +23,7 @@ class CancerousCamera(Camera):
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
-        hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
+        # hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
 
         # I don't know what light intensity these work for.
         # green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
@@ -42,6 +42,12 @@ class CancerousCamera(Camera):
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
 
+        if self.verbose:
+            cv2.namedWindow('Obstacle G Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Obstacle G Mask', green_mask)
+            cv2.namedWindow('Obstacle B Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Obstacle B Mask', blue_mask)
+
         # Join the two masks.
         mask = green_mask + blue_mask
 
@@ -58,5 +64,5 @@ class CancerousCamera(Camera):
         self.publisher.publish(msg)
 
         if self.verbose:
-            cv2.namedWindow('ObstacleMask', cv2.WINDOW_NORMAL)
-            cv2.imshow('ObstacleMask', mask)
+            cv2.namedWindow('Obstacle G+B Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Obstacle G+B Mask', mask)

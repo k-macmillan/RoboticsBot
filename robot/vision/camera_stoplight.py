@@ -25,8 +25,8 @@ class StoplightCamera(Camera):
             inspiration: https://stackoverflow.com/a/25401596
         """
         # Crop the image to deal only with whatever is directly in front of us.
-        cropped = hsv_image[self.REGION_OF_INTEREST].copy()
-        # cropped = hsv_image
+        # cropped = hsv_image[self.REGION_OF_INTEREST].copy()
+        cropped = hsv_image
 
         # Mask out everything but white.
         w_low = np.array([0, 0, 255 - self.SENSITIVITY])
@@ -38,6 +38,12 @@ class StoplightCamera(Camera):
 
         w_mask = cv2.inRange(cropped, w_low, w_high)
         blk_mask = cv2.inRange(cropped, blk_low, blk_high)
+
+        cv2.namedWindow('Stoplight White Mask', cv2.WINDOW_NORMAL)
+        cv2.imshow('Stoplight White Mask', w_mask)
+
+        cv2.namedWindow('Stoplight Black Mask', cv2.WINDOW_NORMAL)
+        cv2.imshow('Stoplight Black Mask', blk_mask)
 
         # Join the two masks.
         mask = w_mask + blk_mask
@@ -55,5 +61,5 @@ class StoplightCamera(Camera):
         if self.verbose:
             # Mask out only the reds. Everything else will be black.
             # masked = cv2.bitwise_and(cropped, cropped, mask=mask)
-            cv2.namedWindow('Stoplight-masked2', cv2.WINDOW_NORMAL)
-            cv2.imshow('Stoplight-masked2', mask)
+            cv2.namedWindow('Stoplight White+Black Mask', cv2.WINDOW_NORMAL)
+            cv2.imshow('Stoplight White+Black Mask', mask)

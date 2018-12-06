@@ -22,7 +22,8 @@ class LaneCamera(Camera):
     def process_image(self, hsv_image):
         """Implement lane detection and publishes the lane centroid."""
         # Crop the image to deal only with whatever is directly in front of us.
-        cropped = hsv_image[self.REGION_OF_INTEREST].copy()
+        # cropped = hsv_image[self.REGION_OF_INTEREST].copy()
+        cropped = hsv_image
 
         # Mask out everything but white.
         white_low = np.array([0, 0, 255 - self.WHITE_SENSITIVITY])
