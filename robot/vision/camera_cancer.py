@@ -17,9 +17,9 @@ class CancerousCamera(Camera):
     # Sensitivity for the green color detection.
     GREEN_SENSITIVITY = 20
     # Sensitivity for the blue color detection.
-    BLUE_SENSITIVITY = 40
+    BLUE_SENSITIVITY = 10
     # How many pixels of obstacle should count as an obstruction.
-    OBSTRUCTION_TOLERANCE = 100
+    OBSTRUCTION_TOLERANCE = 200
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
@@ -29,7 +29,7 @@ class CancerousCamera(Camera):
         green_low = np.array([60 - self.GREEN_SENSITIVITY, 10, 80])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 245])
 
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 40, 80])
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 80])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         green_mask = cv2.inRange(hsv_image, green_low, green_high)

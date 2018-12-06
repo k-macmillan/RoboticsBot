@@ -13,13 +13,13 @@ class GoalCamera(Camera):
     """Camera class for detecting the goal."""
 
     # Sensitivity for the blue color detection.
-    BLUE_SENSITIVITY = 40
+    BLUE_SENSITIVITY = 10
     # The threshold value.
     THRESH_VALUE = 70
     # The threshold maximum value.
     THRESH_MAX = 255
     # The minimum area of a contour required to be considered the goal.
-    MIN_GOAL_AREA = 400
+    MIN_GOAL_AREA = 20000
 
     def __init__(self, error_pub, poi_pub, verbose=False):
         """Construct a GoalCamera.
@@ -48,7 +48,7 @@ class GoalCamera(Camera):
         absurd value.
         """
         # These values are appropriate at max brightness.
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 40, 80])
+        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 80])
         blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
 
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
@@ -63,6 +63,7 @@ class GoalCamera(Camera):
         if contours:
             max_contour = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(max_contour)
+            print('goal area:', area)
 
             M = cv2.moments(max_contour)
             # If the contour area is bigger than some threshold, try to find

@@ -155,7 +155,6 @@ class Brain(Node):
         self.startSpinTimer()
 
     def turnState(self):
-        print('Obstacle POI:', self.obstacle_POI)
         if self.obstacle_POI:
             self.setWheels(self.base_sp * self.turn_dir,
                            -self.base_sp * self.turn_dir)
