@@ -58,6 +58,5 @@ class CancerousCamera(Camera):
         self.publisher.publish(msg)
 
         if self.verbose:
-            print('obstructed:', np.sum(mask) / 255)
             cv2.namedWindow('ObstacleMask', cv2.WINDOW_NORMAL)
             cv2.imshow('ObstacleMask', mask)
