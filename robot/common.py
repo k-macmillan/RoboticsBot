@@ -29,6 +29,7 @@ POI = {
     'EXIT_LOT': 'exit parking lot',
     'GRAPH_NODE': 'graph node',
     'OBSTACLE': 'obstacle',
+    'NO_OBSTACLE': 'no obstacle',
 }
 
 
