@@ -115,7 +115,8 @@ class Brain(Node):
 
     def pathState(self):
         # Tick vs Tock
-        if self.stoplight_POI and self.rl_count < 4:
+        if self.stoplight_POI and (self.rl_count == 0 or self.rl_count == 2):
+            self.rlTimer()
             self.transition(State.STOPPING)
         else:
             self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
@@ -124,16 +125,16 @@ class Brain(Node):
             self.setWheels(self.w1, self.w2)
 
     def stoppingState(self):
-        if self.stoplight_POI and self.rl_count < 4:
+        if self.rl_timer is None:
+            self.rl_count += 1
+            self.setWheels(0.0, 0.0)
             self.transition(State.STOPPED)
             self.rlTimer()
 
     def stoppedState(self):
-        if self.rl_timer is not None:
-            if self.rl_count % 2 == 1:
-                self.rlTimer()
-                self.setWheels(0.0, 0.0)
-            elif self.rl_count == 2:
+        if self.rl_timer is None:
+            self.rl_count += 1
+            if self.rl_count == 2:
                 self.transition(State.ON_PATH)
             elif self.rl_count == 4:
                 self.transition(State.CANCER)
@@ -193,17 +194,9 @@ class Brain(Node):
                 ros.Duration(secs=1.0), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
-        self.rl_count += 1
-        if self.rl_count % 2 == 1:
-            self.transition(State.STOPPED)
-        elif self.rl_count == 2:
-            self.rl_timer.shutdown()
-            self.rl_timer = None
-            self.stoplight_POI = False
-        elif self.rl_count == 4:
-            self.rl_timer.shutdown()
-            self.rl_timer = None
-            self.stoplight_POI = False
+        self.rl_timer.shutdown()
+        self.rl_timer = None
+        self.stoplight_POI = False
 
     def startSpinTimer(self):
         if self.spin_timer is None:
