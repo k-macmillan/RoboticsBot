@@ -1,6 +1,6 @@
 from __future__ import division, print_function
 
-from random import random
+import random
 from time import sleep
 
 import rospy as ros
@@ -40,8 +40,8 @@ class Brain(Node):
         """Perform custom Node initialization."""
         # ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.__correctPath)
         ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.__goalPath)
-        # ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
-        # self.__determineState)
+        ros.Subscriber(TOPIC['POINT_OF_INTEREST'], String,
+                       self.__determineState)
 
     def transition(self, state):
         """Transition the robot's state to that given.
@@ -117,6 +117,7 @@ class Brain(Node):
         Returns wheel velocities. Unfortunately this is spaghetti code. It was
         that or one long, ugly if/elif branch with sub if/elif branches.
         """
+        print(self.state)
         if self.state == State.START:
             self.transition(State.ON_PATH)
             return self.DL.calcWheelSpeeds(self.base_sp, self.base_sp, 0.0)
@@ -135,9 +136,9 @@ class Brain(Node):
                 return self.DL.calcWheelSpeeds(self.w1, self.w2, error)
             else:
                 # Still searching, no goal found
-                print('SETTING SPIN STATE')
-                self.state = State.SPIN
-                return self.DL.calcWheelSpeeds(0.0, 0.0, 0.0)
+                # print('SETTING SPIN STATE')
+                # self.transition(State.SPIN)
+                return self.DL.calcWheelSpeeds(self.w1, self.w2, 0.0)
         elif self.state == State.SPIN:
             self.__start_timer()
             return self.base_sp * 100, -self.base_sp * 100
@@ -171,9 +172,9 @@ class Brain(Node):
         # elif self.state == graph
 
     def __obstacleAvoidance(self):
+        multiplier = 1
         if not self.obst_rot:
             self.obst_rot = True
-            multiplier = 1
             if bool(random.getrandbits(1)):
                 multiplier = -1
         return self.DL.calcWheelSpeeds(self.w1 * multiplier,
@@ -181,8 +182,8 @@ class Brain(Node):
 
     def __start_timer(self):
         if self.timer is None:
-            self.timer = ros.Timer(ros.Duration(secs=0.01),
-                                   self.__timerCallback)
+            self.timer = ros.Timer(
+                ros.Duration(secs=0.01), self.__timerCallback)
 
     def __timerCallback(self, event):
         if self.timer_counter > 365 or self.last_error < 1000.0:
