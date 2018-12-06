@@ -26,7 +26,8 @@ class Brain(Node):
         self.last_error = 1000.0
         self.rl_count = 0
         self.timer_counter = 0
-        self.spin_spin_timer = None
+        self.state_timer = None
+        self.spin_timer = None
         self.obst_rot = False
         self.spun = False
 
@@ -134,7 +135,7 @@ class Brain(Node):
                            -self.base_sp * self.turn_dir)
 
     def mtgState(self):
-        self.w1, self.w2 = self.DL.calcWheelSpeeds(self.goal_error)
+        self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1, self.w2, self.goal_error)
         self.setWheels(self.w1, self.w2)
 
     def setWheels(self, w1=None, w2=None):
