@@ -9,6 +9,8 @@ from .camera_base import Camera
 class CancerousCamera(Camera):
     """Publish obstacle obstruction information."""
 
+    # The region where the obstacle would be directly in front of us.
+    REGION_OF_INTEREST = (slice(450, 460, None), slice(0, None, None))
     # Sensitivity for the green color detection.
     GREEN_SENSITIVITY = 50
     # Sensitivity for the blue color detection.
@@ -16,6 +18,7 @@ class CancerousCamera(Camera):
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
+        hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
         green_low = np.array([60 - self.GREEN_SENSITIVITY, 80, 80])
         green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 255])
 
@@ -36,5 +39,5 @@ class CancerousCamera(Camera):
         if self.verbose:
             # Mask out only the greens. Everything else will be black.
             masked = cv2.bitwise_and(hsv_image, hsv_image, mask=mask)
-            cv2.namedWindow('GreenBlueMask', cv2.WINDOW_NORMAL)
-            cv2.imshow('GreenBlueMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
+            cv2.namedWindow('ObstacleMask', cv2.WINDOW_NORMAL)
+            cv2.imshow('ObstacleMask', cv2.cvtColor(masked, cv2.COLOR_HSV2BGR))
