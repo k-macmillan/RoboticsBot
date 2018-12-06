@@ -63,7 +63,7 @@ class GoalCamera(Camera):
         if contours:
             max_contour = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(max_contour)
-            print('goal area:', area)
+            # print('goal area:', area)
 
             M = cv2.moments(max_contour)
             # If the contour area is bigger than some threshold, try to find

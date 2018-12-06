@@ -23,6 +23,7 @@ class Brain(Node):
         self.state = State.CANCER
         self.rl_count = 0
         self.spin_timer_counter = 0
+        self.wtf = 0
 
         # Timer vars
         self.state_timer = None
@@ -90,6 +91,8 @@ class Brain(Node):
         if msg.data == POI['STOPLIGHT'] and self.state == State.ON_PATH:
             self.stoplight_POI = True
         elif msg.data == POI['OBSTACLE']:
+            self.wtf+= 1
+            print('OBSTRUCTED', self.wtf)
             self.obstacle_POI = True
         elif msg.data == POI['NO_OBSTACLE']:
             self.obstacle_POI = False
