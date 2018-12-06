@@ -48,8 +48,8 @@ class GoalCamera(Camera):
         absurd value.
         """
         # These values are appropriate at max brightness.
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 80])
-        blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
+        blue_low = np.array([100, 0, 100])
+        blue_high = np.array([130, 255, 255])
 
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
 

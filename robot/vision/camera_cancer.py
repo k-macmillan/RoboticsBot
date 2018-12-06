@@ -26,11 +26,11 @@ class CancerousCamera(Camera):
         hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
         # These thresholds work for a light intensity of ~90lx on an S8
-        green_low = np.array([60 - self.GREEN_SENSITIVITY, 10, 80])
-        green_high = np.array([60 + self.GREEN_SENSITIVITY, 255, 245])
+        green_low = np.array([40, 25, 50])
+        green_high = np.array([80, 255, 255])
 
-        blue_low = np.array([120 - self.BLUE_SENSITIVITY, 80, 80])
-        blue_high = np.array([120 + self.BLUE_SENSITIVITY, 255, 255])
+        blue_low = np.array([100, 0, 100])
+        blue_high = np.array([130, 255, 255])
 
         green_mask = cv2.inRange(hsv_image, green_low, green_high)
         blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
