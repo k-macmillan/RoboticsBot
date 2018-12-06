@@ -27,6 +27,7 @@ class Brain(Node):
         self.timer_counter = 0
         self.timer = None
         self.obst_rot = False
+        self.spun = False
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
         self.state_pub = ros.Publisher(
@@ -74,9 +75,11 @@ class Brain(Node):
                 wheels.data = [self.w1, self.w2]
                 self.wheel_speeds.publish(wheels)
         elif msg.data == POI['OBSTACLE']:
+            # self.spun = False
             self.transition(State.OBSTACLE)
             self.__forceCorrectPath(0.0)
         elif msg.data == POI['NO_OBSTACLE']:
+            self.spun = False
             self.obst_rot = False
             self.transition(State.TESTICULAR_CANCER)
             # self.__forceCorrectPath(0.0)
@@ -172,6 +175,12 @@ class Brain(Node):
         # elif self.state == graph
 
     def __obstacleAvoidance(self):
+        if not self.spun:
+            self.spun = True
+            self.last_state = self.state
+            self.transition(State.SPIN)
+            self.__forceCorrectPath(0)
+            return 0.0, 0.0
         multiplier = 1
         if not self.obst_rot:
             self.obst_rot = True
@@ -187,7 +196,7 @@ class Brain(Node):
 
     def __timerCallback(self, event):
         if self.timer_counter > 365 or self.last_error < 1000.0:
-            self.transition(State.TESTICULAR_CANCER)
+            self.transition(self.last_state)
             self.timer.shutdown()
             self.timer_counter = 0
             self.timer = None
