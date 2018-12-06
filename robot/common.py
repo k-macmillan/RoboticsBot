@@ -27,7 +27,7 @@ TOPIC = {
 POI = {
     'STOPLIGHT': 'stoplight',
     'EXIT_LOT': 'exit parking lot',
-    'NO_EXIT_LOT': 'exit parking lot',
+    'NO_EXIT_LOT': 'no exit parking lot',
     'GRAPH_NODE': 'graph node',
     'OBSTACLE': 'obstacle',
     'NO_OBSTACLE': 'no obstacle',
