@@ -241,16 +241,17 @@ class Brain(Node):
             self.setWheels(self.w1, self.w2)
 
     def nodeStoppingState(self):
+        if self.node_timer is None:
+            self.setWheels(0.0, 0.0)
+            self.transition(State.NODE_STOPPED)
+            self.nodeTimer()
+
+    def nodeStoppedState(self):
         if not self.node0:
             self.node0 = True
             print('Turning to face node 1')
             self.node0Timer()
             self.setWheels(self.base_sp, -self.base_sp)
-        if self.node_timer is None:
-            self.transition(State.NODE_STOPPED)
-            self.nodeTimer()
-
-    def nodeStoppedState(self):
         if self.node_timer is None:
             self.node_slice = next(self.node_list, None)
             print('Node: ', self.node_slice)
