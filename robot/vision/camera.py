@@ -56,7 +56,7 @@ class CameraController(Node):
 
         self.verbose = verbose
         # Force the camera's state during testing:wq
-        self.state = State.G_ON_PATH
+        self.state = State.ON_PATH
         self.bridge = CvBridge()
 
         poi_pub = ros.Publisher(

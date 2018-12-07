@@ -21,7 +21,7 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.GRAPH
+        self.state = State.ON_PATH
         self.turn_dir = 1
         self.node_list = self.pairwise(GRAPH_PATH[node])
         self.node_slice = None
