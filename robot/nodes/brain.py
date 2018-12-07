@@ -21,7 +21,7 @@ class Brain(Node):
         """
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
-        self.state = State.CANCER
+        self.state = State.GRAPH
         self.turn_dir = 1
         self.node_list = self.pairwise(GRAPH_PATH[node])
         self.node_slice = None
@@ -90,6 +90,9 @@ class Brain(Node):
         self.goal_error = msg.data
 
     def topicNode(self, msg):
+        # We require a bootstrap.
+        if self.state_timer is None:
+            self.stateTimer()
         self.node_error = msg.data
 
     def topicPOI(self, msg):
@@ -347,7 +350,7 @@ class Brain(Node):
     def nodeTimer(self):
         if self.node_timer is None:
             print('Creating Node timer')
-            self.rl_timer = ros.Timer(
+            self.node_timer = ros.Timer(
                 ros.Duration(secs=1.2), self.timerNodeShutdown)
 
     def timerNodeShutdown(self, event):
@@ -357,8 +360,8 @@ class Brain(Node):
 
     def rotateTimer(self):
         if self.rotate_timer is None:
-            print('Creating RL timer')
-            self.rl_timer = ros.Timer(
+            print('Creating Rotate timer')
+            self.rotate_timer = ros.Timer(
                 ros.Duration(secs=1.0), self.timerRotateShutdown)
 
     def timerRotateShutdown(self, event):
