@@ -27,6 +27,7 @@ class Brain(Node):
         self.node_slice = None
         self.rl_count = 0
         self.spin_timer_counter = 0
+        self.done = False
 
         # Timer vars
         self.state_timer = None
@@ -240,7 +241,10 @@ class Brain(Node):
 
     def nodeStoppingState(self):
         if self.node_timer is None:
-            self.setWheels(0.0, 0.0)
+            if (self.node_slice is None and self.node0_timer is None):
+                print('Turning to face node 1')
+                self.node0Timer()
+                self.setWheels(self.base_sp, -self.base_sp)
             self.transition(State.NODE_STOPPED)
             self.nodeTimer()
 
@@ -248,9 +252,6 @@ class Brain(Node):
         if self.node_timer is None:
             self.node_slice = next(self.node_list, None)
             print('Node: ', self.node_slice)
-            if (self.node_slice[0] == 0 and self.node0_timer is None):
-                self.node0Timer()
-                self.setWheels(self.base_sp, -self.base_sp)
             self.nodeTimer()
             self.transition(State.ROTATE_LEFT)
 
@@ -284,7 +285,10 @@ class Brain(Node):
             self.transition(State.END)
 
     def endState(self):
-        print('VICTORY')
+        if not self.done :
+            self.done = True
+            print('VICTORY')
+        self.setWheels(0.0, 0.0)
 
     # Helper functions
 
@@ -358,7 +362,7 @@ class Brain(Node):
         if self.node_timer is None:
             print('Creating Node timer')
             self.node_timer = ros.Timer(
-                ros.Duration(secs=1.75), self.timerNodeShutdown)
+                ros.Duration(secs=1.25), self.timerNodeShutdown)
 
     def timerNodeShutdown(self, event):
         self.node_timer.shutdown()
@@ -380,9 +384,10 @@ class Brain(Node):
         if self.node0_timer is None:
             print('Creating Node ZERO timer')
             self.node0_timer = ros.Timer(
-                ros.Duration(secs=0.33), self.timerNode0Shutdown)
+                ros.Duration(secs=0.5), self.timerNode0Shutdown)
 
     def timerNode0Shutdown(self, event):
+        print('Shutting down Node ZERO timer')
         self.node0_timer.shutdown()
         self.node0_timer = None
         self.setWheels(0.0, 0.0)
