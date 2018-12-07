@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 
+from collections import deque
 import cv2
 from std_msgs.msg import Float32, String
 
@@ -19,7 +20,7 @@ class GoalCamera(Camera):
     # The threshold maximum value.
     THRESH_MAX = 255
     # The minimum area of a contour required to be considered the goal.
-    MIN_GOAL_AREA = 20000
+    MIN_GOAL_AREA = 10000
 
     def __init__(self, error_pub, poi_pub, verbose=False):
         """Construct a GoalCamera.
@@ -39,6 +40,8 @@ class GoalCamera(Camera):
 
         self.error_pub = error_pub
         self.poi_pub = poi_pub
+        self.detections = deque([0]*10, maxlen=10)
+        # self.counter = 0
 
     def process_image(self, hsv_image):
         """Publish left/right relative position of the goal.
@@ -47,14 +50,23 @@ class GoalCamera(Camera):
         goal to the center of the frame. If the goal is not visible, publish an
         absurd value.
         """
+        # self.counter += 1
+        # if self.counter % 10 == 0:
+        #     print('counter:', self.counter)
         # These values are appropriate at max brightness.
-        blue_mask = mask_image(hsv_image, (100, 80, 100), (130, 255, 255))
+        blue_mask = mask_image(hsv_image, (100, 20, 80), (130, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Goal B Mask', cv2.WINDOW_NORMAL)
             cv2.imshow('Goal B Mask', blue_mask)
 
         _, contours, _ = cv2.findContours(blue_mask, 1, cv2.CHAIN_APPROX_SIMPLE)
+
+        goal_in_sight = False
+        error = Float32()
+        error.data = 0.0
+        poi = String()
+        poi.data = POI['NO_EXIT_LOT']
 
         # If we find any contours, find the biggest and call that the goal.
         if contours:
@@ -72,26 +84,21 @@ class GoalCamera(Camera):
                 # Normalize the error so that it's -1.0 to 1.0, with 0.0 being
                 # an indication that the goal centroid is in the exact center
                 # of the frame.
-                error = 0.0
+                signal = 0.0
                 mid = hsv_image.shape[1] / 2
                 if cx <= mid:
-                    error = (cx - mid) / mid
+                    signal = (cx - mid) / mid
                 else:
-                    error = -(mid - cx) / mid
+                    signal = -(mid - cx) / mid
 
-                msg = Float32()
-                msg.data = error
-                self.error_pub.publish(msg)
+                error.data = signal
+                goal_in_sight = True
 
-                msg = String()
-                msg.data = POI['EXIT_LOT']
-                self.poi_pub.publish(msg)
-                return
+        self.detections.appendleft(goal_in_sight)
+        if sum(self.detections) != 0:
+            poi.data = POI['EXIT_LOT']
+        else:
+            poi.data = POI['NO_EXIT_LOT']
 
-        msg = Float32()
-        msg.data = 0.0
-        self.error_pub.publish(msg)
-
-        msg = String()
-        msg.data = POI['NO_EXIT_LOT']
-        self.poi_pub.publish(msg)
+        self.error_pub.publish(error)
+        self.poi_pub.publish(poi)

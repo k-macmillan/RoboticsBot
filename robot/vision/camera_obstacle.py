@@ -27,7 +27,7 @@ class ObstacleCamera(Camera):
         hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
         green_mask = mask_image(hsv_image, (40, 25, 50), (80, 255, 255))
-        blue_mask = mask_image(hsv_image, (100, 80, 100), (130, 255, 255))
+        blue_mask = mask_image(hsv_image, (100, 20, 80), (130, 255, 255))
         yellow_mask = mask_image(hsv_image, (10, 0, 0), (50, 255, 255))
 
         if self.verbose:
