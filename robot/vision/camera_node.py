@@ -14,6 +14,7 @@ class NodeCamera(Camera):
 
     # The minimum area of a contour required to be considered the goal.
     MIN_GOAL_AREA = 20000
+    REGION_OF_INTEREST = (slice(460, 480, None), slice(0, None, None))
 
     def __init__(self, error_pub, poi_pub, verbose=False):
         """Construct a NodeCamera.
@@ -43,13 +44,22 @@ class NodeCamera(Camera):
         """
         # Convert 0-360 range to 0-179 range.
         hue = 300 / 360 * 179
-        purple_mask = mask_image(hsv_image, (hue - 25, 30, 80), (hue + 25, 255, 255))
+        purple_mask = mask_image(hsv_image, (hue - 25, 30, 80),
+                                 (hue + 25, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Node P Mask', cv2.WINDOW_NORMAL)
             cv2.imshow('Node P Mask', purple_mask)
 
-        _, contours, _ = cv2.findContours(purple_mask, 1, cv2.CHAIN_APPROX_SIMPLE)
+        _, contours, _ = cv2.findContours(purple_mask, 1,
+                                          cv2.CHAIN_APPROX_SIMPLE)
+        _, poi_contours, _ = cv2.findContours(
+            purple_mask[self.REGION_OF_INTEREST], 1, cv2.CHAIN_APPROX_SIMPLE)
+
+        error = Float32()
+        error.data = 0.0
+        poi = String()
+        poi.data = POI['NO_GRAPH_NODE']
 
         # If we find any contours, find the biggest and call that the goal.
         if contours:
@@ -67,26 +77,20 @@ class NodeCamera(Camera):
                 # Normalize the error so that it's -1.0 to 1.0, with 0.0 being
                 # an indication that the goal centroid is in the exact center
                 # of the frame.
-                error = 0.0
+                signal = 0.0
                 mid = hsv_image.shape[1] / 2
                 if cx <= mid:
-                    error = (cx - mid) / mid
+                    signal = (cx - mid) / mid
                 else:
-                    error = -(mid - cx) / mid
+                    signal = -(mid - cx) / mid
 
-                msg = Float32()
-                msg.data = error
-                self.error_pub.publish(msg)
+                error.data = signal
 
-                msg = String()
-                msg.data = POI['GRAPH_NODE']
-                self.poi_pub.publish(msg)
-                return
+        if poi_contours:
+            max_contour = max(poi_contours, key=cv2.contourArea)
+            area = cv2.contourArea(max_contour)
+            if area > self.MIN_GOAL_AREA:
+                poi.data = POI['GRAPH_NODE']
 
-        msg = Float32()
-        msg.data = 0.0
-        self.error_pub.publish(msg)
-
-        msg = String()
-        msg.data = POI['NO_GRAPH_NODE']
-        self.poi_pub.publish(msg)
+        self.error_pub.publish(error)
+        self.poi_pub.publish(poi)
