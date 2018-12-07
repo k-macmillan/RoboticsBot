@@ -140,10 +140,10 @@ class Brain(Node):
         elif self.state == State.TURN:
             self.turnState()
         elif self.state == State.MTG:
-            self.base_sp = 8.0
             self.mtgState()
         # Graph
         elif self.state == State.GRAPH:
+            self.base_sp = 8.0
             self.graphState()
         elif self.state == State.ORIENTING:
             self.orientingState()
@@ -349,7 +349,7 @@ class Brain(Node):
                 ros.Duration(secs=0.01), self.timerSpinCallback)
 
     def timerSpinCallback(self, event):
-        if self.spin_timer_counter > 600:
+        if self.spin_timer_counter > 550:
             self.timerSpinShutdown()
             # Set turn direction and set state to TURN
             if bool(random.getrandbits(1)):
