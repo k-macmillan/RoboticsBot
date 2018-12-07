@@ -276,7 +276,7 @@ class Brain(Node):
                 if self.node_slice[1] == 5:
                     self.rotateTimer(1.5)
                 else:
-                    self.rotateTimer(0.7)
+                    self.rotateTimer(0.6)
         else:
             self.transition(State.ROTATE_RIGHT)
 
