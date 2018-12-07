@@ -197,6 +197,7 @@ class Brain(Node):
             self.rotation = -1 * self.rotation
             self.transition(State.SPIN)
         elif self.goal_POI:
+            self.w1, self.w2 = 5.0, 5.0
             self.transition(State.MTG)
         else:
             self.setWheels(self.base_sp, self.base_sp)
@@ -273,7 +274,7 @@ class Brain(Node):
                 if self.node_slice[1] == 5:
                     self.rotateTimer(1.5)
                 else:
-                    self.rotateTimer(0.8)
+                    self.rotateTimer(0.7)
         else:
             self.transition(State.ROTATE_RIGHT)
 
@@ -335,7 +336,7 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.1), self.timerRLShutdown)
+                ros.Duration(secs=1.3), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
