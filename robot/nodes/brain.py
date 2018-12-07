@@ -1,18 +1,19 @@
 from __future__ import division, print_function
 
+import itertools
 import random
 
 import rospy as ros
 from std_msgs.msg import Float32, Float32MultiArray, String, UInt8
 
-from robot.common import POI, TOPIC, State
+from robot.common import *
 from robot.nodes import DriveLine, Node
 
 
 class Brain(Node):
     """A ROS Node to handle the brain of our robot."""
 
-    def __init__(self, verbose=False):
+    def __init__(self, node=0, verbose=False):
         """Initialize the Brain node.
 
         :param verbose: How passionate should the Brain be?, defaults to False
@@ -21,6 +22,9 @@ class Brain(Node):
         super(Brain, self).__init__(name='Brain')
         self.verbose = verbose
         self.state = State.CANCER
+        self.turn_dir = 1
+        self.node_list = self.pairwise(GRAPH_PATH[node])
+        self.node_slice = None
         self.rl_count = 0
         self.spin_timer_counter = 0
 
@@ -28,14 +32,19 @@ class Brain(Node):
         self.state_timer = None
         self.spin_timer = None
         self.rl_timer = None
+        self.node_timer = None
+        self.rotate_timer = None
 
-        # POI updates & state stuff
+        # POI
         self.stoplight_POI = False
         self.obstacle_POI = False
         self.goal_POI = False
-        self.goal_error = 0.0
+        self.node_POI = False
+
+        # Errors
         self.path_error = 0.0
-        self.turn_dir = 1
+        self.goal_error = 0.0
+        self.node_error = 0.0
 
         self.wheel_speeds = ros.Publisher(
             TOPIC['WHEEL_TWIST'], Float32MultiArray, queue_size=1)
@@ -50,6 +59,7 @@ class Brain(Node):
         """Perform custom Node initialization."""
         ros.Subscriber(TOPIC['LANE_CENTROID'], Float32, self.topicPath)
         ros.Subscriber(TOPIC['GOAL_CENTROID'], Float32, self.topicGoal)
+        ros.Subscriber(TOPIC['NODE_CENTROID'], Float32, self.topicNode)
         ros.Subscriber(TOPIC['POINT_OF_INTEREST'],
                        String,
                        self.topicPOI)
@@ -79,6 +89,9 @@ class Brain(Node):
             self.stateTimer()
         self.goal_error = msg.data
 
+    def topicNode(self, msg):
+        self.node_error = msg.data
+
     def topicPOI(self, msg):
         """Handle a Point of Interest notification.
 
@@ -99,14 +112,18 @@ class Brain(Node):
             self.goal_POI = True
         elif msg.data == POI['NO_EXIT_LOT']:
             self.goal_POI = False
+        elif msg.data == POI['GRAPH_NODE']:
+            self.node_POI = True
 
     def stateHandler(self, event):
+        # Path
         if self.state == State.ON_PATH:
             self.pathState()
         elif self.state == State.STOPPING:
             self.stoppingState()
         elif self.state == State.STOPPED:
             self.stoppedState()
+        # Parking Lot
         elif self.state == State.CANCER:
             self.cancerState()
         elif self.state == State.SPIN:
@@ -115,8 +132,27 @@ class Brain(Node):
             self.turnState()
         elif self.state == State.MTG:
             self.mtgState()
+        # Graph
         elif self.state == State.GRAPH:
-            pass
+            self.graphState()
+        elif self.state == State.ORIENTING:
+            self.orientingState()
+        elif self.state == State.G_ON_PATH:
+            self.graphOnPathState()
+        elif self.state == State.NODE_STOPPING:
+            self.nodeStoppingState()
+        elif self.state == State.NODE_STOPPED:
+            self.nodeStoppedState()
+        elif self.state == State.ROTATE_LEFT:
+            self.rotateLeftState()
+        elif self.state == State.ROTATE_RIGHT:
+            self.rotateRightState()
+        elif self.state == State.FORWARD:
+            self.forwardState()
+        elif self.state == State.END:
+            self.endState()
+
+    # Path section
 
     def pathState(self):
         # Tick vs Tock
@@ -144,6 +180,8 @@ class Brain(Node):
             elif self.rl_count == 4:
                 self.transition(State.CANCER)
 
+    # Parking lot section
+
     def cancerState(self):
         if self.obstacle_POI:
             self.transition(State.SPIN)
@@ -164,10 +202,79 @@ class Brain(Node):
             self.transition(State.CANCER)
 
     def mtgState(self):
-        self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
-                                                   self.w2,
-                                                   self.goal_error)
-        self.setWheels(self.w1, self.w2)
+        if self.goal_POI:
+            self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
+                                                       self.w2,
+                                                       self.goal_error)
+            self.setWheels(self.w1, self.w2)
+        else:
+            self.transition(State.GRAPH)
+
+    # Graph section
+
+    def graphState(self):
+        # I am slightly worried about losing goal vision.
+        self.last_centroid = self.path_error
+        self.transition(State.ORIENTING)
+
+    def orientingState(self):
+        # Keep track of last lane centroid
+        if self.path_error != self.last_centroid:
+            self.setWheels(self.base_sp, -self.base_sp)
+        else:
+            self.transition(State.G_ON_PATH)
+
+    def graphOnPathState(self):
+        if self.node_POI:
+            self.nodeTimer()
+            self.transition(State.NODE_STOPPING)
+        else:
+            self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
+                                                       self.w2,
+                                                       self.path_error)
+            self.setWheels(self.w1, self.w2)
+
+    def nodeStoppingState(self):
+        if self.node_timer is None:
+            self.setWheels(0.0, 0.0)
+            self.transition(State.NODE_STOPPED)
+            self.nodeTimer()
+
+    def nodeStoppedState(self):
+        self.node_slice = next(self.node_list)
+        self.transition(State.ROTATE_LEFT)
+
+    def rotateLeftState(self):
+        if self.node_slice in LEFT_TURN:
+            if self.rotate_timer is None:
+                self.setWheels(self.base_sp, -self.base_sp)
+                self.rotateTimer()
+        else:
+            self.transition(State.ROTATE_RIGHT)
+
+    def rotateRightState(self):
+        if self.node_slice in RIGHT_TURN:
+            if self.rotate_timer is None:
+                self.setWheels(-self.base_sp, self.base_sp)
+                self.rotateTimer()
+        else:
+            self.transition(State.FORWARD)
+
+    def forwardState(self):
+        if self.node_slice in FORWARD:
+            if self.node_POI:
+                self.nodeTimer()
+                self.transition(State.NODE_STOPPING)
+            else:
+                self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
+                                                           self.w2,
+                                                           self.node_error)
+                self.setWheels(self.w1, self.w2)
+        else:
+            self.transition(State.END)
+
+    def endState(self):
+        print('VICTORY')
 
     # Helper functions
 
@@ -182,6 +289,13 @@ class Brain(Node):
     def printError(self, msg):
         for i in range(20):
             print(msg)
+
+    @staticmethod
+    def pairwise(iterable):
+        """s -> (s0,s1), (s{1,s2), (s2, s3), ..."""
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return itertools.izip(a, b)
 
     # Timer section
 
@@ -229,3 +343,25 @@ class Brain(Node):
         self.w1 = self.base_sp
         self.w2 = self.base_sp
         self.setWheels(0.0, 0.0)
+
+    def nodeTimer(self):
+        if self.node_timer is None:
+            print('Creating Node timer')
+            self.rl_timer = ros.Timer(
+                ros.Duration(secs=1.2), self.timerNodeShutdown)
+
+    def timerNodeShutdown(self, event):
+        self.node_timer.shutdown()
+        self.node_timer = None
+        self.node_POI = False
+
+    def rotateTimer(self):
+        if self.rotate_timer is None:
+            print('Creating RL timer')
+            self.rl_timer = ros.Timer(
+                ros.Duration(secs=1.0), self.timerRotateShutdown)
+
+    def timerRotateShutdown(self, event):
+        self.rotate_timer.shutdown()
+        self.rotate_timer = None
+        self.transition(State.FORWARD)
