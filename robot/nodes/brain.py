@@ -239,6 +239,7 @@ class Brain(Node):
             self.setWheels(4.0, -4.0)
         else:
             self.w1, self.w2 = self.base_sp, self.base_sp
+            self.node_POI = False
             self.transition(State.G_ON_PATH)
 
     def graphOnPathState(self):

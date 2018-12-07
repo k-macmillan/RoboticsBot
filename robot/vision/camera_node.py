@@ -45,7 +45,7 @@ class NodeCamera(Camera):
         """
         # Convert 0-360 range to 0-179 range.
         hue = 300 / 360 * 179
-        purple_mask = mask_image(hsv_image, (hue - 25, 30, 80),
+        purple_mask = mask_image(hsv_image, (hue - 25, 40, 90),
                                  (hue + 25, 255, 255))
 
         if self.verbose:
