@@ -238,6 +238,7 @@ class Brain(Node):
         if not self.lane_detected:
             self.setWheels(4.0, -4.0)
         else:
+            self.w1, self.w2 = self.base_sp, self.base_sp
             self.transition(State.G_ON_PATH)
 
     def graphOnPathState(self):
