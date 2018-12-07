@@ -30,7 +30,6 @@ class Brain(Node):
         self.node0 = False
         self.done = False
         self.target = node
-        self.last_centroid = 0.0
 
         # Timer vars
         self.state_timer = None
@@ -222,16 +221,17 @@ class Brain(Node):
 
     def graphState(self):
         # I am slightly worried about losing goal vision.
-        self.last_centroid = self.path_error
+        self.path_error = 0.5
         self.transition(State.ORIENTING)
 
     def orientingState(self):
         # Keep track of last lane centroid
         print('orient error:', self.path_error)
-        if self.path_error != self.last_centroid:
-            self.setWheels(self.base_sp, -self.base_sp)
-        else:
+        # If we become centered on the lane...
+        if -0.1 < self.path_error < 0.1:
             self.transition(State.G_ON_PATH)
+        else:
+            self.setWheels(self.base_sp, -self.base_sp)
 
     def graphOnPathState(self):
         if self.node_POI:
@@ -253,7 +253,7 @@ class Brain(Node):
         if self.node_slice is None:
             self.transition(State.END)
         elif self.node_slice[0] == 0:
-            self.last_centroid = self.path_error
+            self.path_error = 0.5
             self.transition(State.ORIENTING)
         else:
             self.transition(State.ROTATE_LEFT)
@@ -315,6 +315,9 @@ class Brain(Node):
         a, b = itertools.tee(iterable)
         next(b, None)
         return itertools.izip(a, b)
+
+    def isClose(self, a, b, epsilon=0.1):
+        return abs(a - b) < epsilon
 
     # Timer section
 
