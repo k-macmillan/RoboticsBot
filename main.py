@@ -12,12 +12,18 @@ def parse_args():
         action='store_true',
         default=False,
         help='Increase robot\'s volume.')
+    parser.add_argument(
+        'target',
+        type=int,
+        default=0,
+        help='The target graph node. Default is 0'
+    )
     return parser.parse_args()
 
 
 def main(args):
     """Main entry point for robot."""
-    robot = Robot(verbose=args.verbose)
+    robot = Robot(target=args.target, verbose=args.verbose)
     robot.start()
 
 
