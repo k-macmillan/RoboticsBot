@@ -30,6 +30,7 @@ class Brain(Node):
         self.node0 = False
         self.done = False
         self.target = node
+        self.last_centroid = 0.0
 
         # Timer vars
         self.state_timer = None
