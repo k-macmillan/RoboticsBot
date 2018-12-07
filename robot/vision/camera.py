@@ -9,9 +9,10 @@ from std_msgs.msg import Float32, String, UInt8
 from robot.common import TOPIC, State
 from robot.nodes import Node
 
-from .camera_obstacle import ObstacleCamera
 from .camera_goal import GoalCamera
 from .camera_lane import LaneCamera
+from .camera_node import NodeCamera
+from .camera_obstacle import ObstacleCamera
 from .camera_stoplight import StoplightCamera
 
 
@@ -62,11 +63,13 @@ class CameraController(Node):
             TOPIC['POINT_OF_INTEREST'], String, queue_size=1)
         lane_pub = ros.Publisher(TOPIC['LANE_CENTROID'], Float32, queue_size=1)
         exit_pub = ros.Publisher(TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
+        node_pub = ros.Publisher(TOPIC['NODE_CENTROID'], Float32, queue_size=1)
 
         self.lane_camera = LaneCamera(lane_pub, verbose=False)
         self.stoplight_cam = StoplightCamera(poi_pub, verbose=verbose)
         self.obstacle_cam = ObstacleCamera(poi_pub, verbose=verbose)
         self.exit_cam = GoalCamera(exit_pub, poi_pub, verbose=verbose)
+        self.node_cam = NodeCamera(node_pub, poi_pub, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -115,6 +118,10 @@ class CameraController(Node):
            self.state == State.SPIN or                                        \
            self.state == State.MTG:
             self.exit_cam.process_image(hsv_frame)
+
+        if self.state == State.G_ON_PATH or                                   \
+           self.state == State.FORWARD:
+            self.node_cam.process_image(hsv_frame)
 
         if self.verbose:
             cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
