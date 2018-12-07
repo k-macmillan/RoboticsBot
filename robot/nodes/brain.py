@@ -31,6 +31,7 @@ class Brain(Node):
         self.done = False
         self.target = node
         self.rotation = 1
+        self.lane_detected = False
 
         # Timer vars
         self.state_timer = None
@@ -87,6 +88,7 @@ class Brain(Node):
         if self.state_timer is None:
             self.stateTimer()
         self.path_error = msg.data
+        self.lane_detected = True
 
     def topicGoal(self, msg):
         # We require a bootstrap.
@@ -228,12 +230,12 @@ class Brain(Node):
 
     def graphState(self):
         # I am slightly worried about losing goal vision.
-        self.last_centroid = self.path_error
+        self.lane_detected = False
         self.transition(State.ORIENTING)
 
     def orientingState(self):
         # Keep track of last lane centroid
-        if self.path_error != self.last_centroid:
+        if not self.lane_detected:
             self.setWheels(4.0, -4.0)
         else:
             self.transition(State.G_ON_PATH)
