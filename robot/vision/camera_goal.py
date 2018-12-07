@@ -1,12 +1,12 @@
 from __future__ import division, print_function
 
 import cv2
-import numpy as np
 from std_msgs.msg import Float32, String
 
 from robot.common import POI
 
 from .camera_base import Camera
+from .mask import mask_image
 
 
 class GoalCamera(Camera):
@@ -48,18 +48,7 @@ class GoalCamera(Camera):
         absurd value.
         """
         # These values are appropriate at max brightness.
-        blue_low = np.array([100, 80, 100])
-        blue_high = np.array([130, 255, 255])
-
-        blue_mask = cv2.inRange(hsv_image, blue_low, blue_high)
-        blue_mask = cv2.erode(
-            blue_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
-            iterations=1)
-        blue_mask = cv2.dilate(
-            blue_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
-            iterations=1)
+        blue_mask = mask_image(hsv_image, (100, 80, 100), (130, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Goal B Mask', cv2.WINDOW_NORMAL)

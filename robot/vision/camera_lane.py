@@ -1,10 +1,10 @@
 from __future__ import division, print_function
 
 import cv2
-import numpy as np
 from std_msgs.msg import Float32
 
 from .camera_base import Camera
+from .mask import mask_image
 
 
 class LaneCamera(Camera):
@@ -25,18 +25,8 @@ class LaneCamera(Camera):
         hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
         # Mask out everything but white.
-        white_low = np.array([0, 0, 255 - self.WHITE_SENSITIVITY])
-        white_high = np.array([255, self.WHITE_SENSITIVITY, 255])
-
-        mask = cv2.inRange(hsv_image, white_low, white_high)
-        mask = cv2.erode(
-            mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
-            iterations=1)
-        mask = cv2.dilate(
-            mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
-            iterations=1)
+        mask = mask_image(hsv_image, (0, 0, 255 - self.WHITE_SENSITIVITY),
+                          (255, self.WHITE_SENSITIVITY, 255))
 
         if self.verbose:
             cv2.namedWindow('Lane W Mask', cv2.WINDOW_NORMAL)

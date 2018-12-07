@@ -7,6 +7,7 @@ from std_msgs.msg import String
 from robot.common import POI
 
 from .camera_base import Camera
+from .mask import mask_image
 
 
 class StoplightCamera(Camera):
@@ -25,44 +26,21 @@ class StoplightCamera(Camera):
             inspiration: https://stackoverflow.com/a/25401596
         """
         # Crop the image to deal only with whatever is directly in front of us.
-        hsv_image = hsv_image[self.REGION_OF_INTEREST].copy()
+        hsv_image = hsv_image[self.REGION_OF_INTEREST]
 
-        # Mask out everything but white.
-        w_low = np.array([0, 0, 255 - self.SENSITIVITY])
-        w_high = np.array([255, self.SENSITIVITY, 255])
-
-        # Mask out everything but black.
-        blk_low = np.array([0, 0, 0])
-        blk_high = np.array([180, 255, 200])
-
-        w_mask = cv2.inRange(hsv_image, w_low, w_high)
-        w_mask = cv2.erode(
-            w_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
-            iterations=1)
-        w_mask = cv2.dilate(
-            w_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
-            iterations=1)
-        blk_mask = cv2.inRange(hsv_image, blk_low, blk_high)
-        blk_mask = cv2.erode(
-            blk_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 8)),
-            iterations=1)
-        blk_mask = cv2.dilate(
-            blk_mask,
-            cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)),
-            iterations=1)
+        white_mask = mask_image(hsv_image, (0, 0, 255 - self.SENSITIVITY),
+                                (255, self.SENSITIVITY, 255))
+        black_mask = mask_image(hsv_image, (0, 0, 0), (180, 255, 200))
 
         if self.verbose:
             cv2.namedWindow('Stoplight W Mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('Stoplight W Mask', w_mask)
+            cv2.imshow('Stoplight W Mask', white_mask)
 
             cv2.namedWindow('Stoplight BLK Mask', cv2.WINDOW_NORMAL)
-            cv2.imshow('Stoplight BLK Mask', blk_mask)
+            cv2.imshow('Stoplight BLK Mask', black_mask)
 
         # Join the two masks.
-        mask = w_mask + blk_mask
+        mask = white_mask + black_mask
         # Swap 0 and 255 values...
         mask[mask == 0] = 1
         mask[mask >= 255] = 0
