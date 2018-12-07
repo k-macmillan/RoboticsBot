@@ -57,7 +57,7 @@ class LaneCamera(Camera):
                 cy = int(M['m01'] / M['m00'])
 
                 # Image center => 0.0, left border => -1.0, right border => 1.0
-                image_center = cropped.shape[1] / 2
+                image_center = hsv_image.shape[1] / 2
                 fraction = 0.0
                 if cx <= image_center:
                     fraction = (cx - image_center) / image_center
