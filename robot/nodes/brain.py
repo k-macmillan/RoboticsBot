@@ -30,6 +30,7 @@ class Brain(Node):
         self.node0 = False
         self.done = False
         self.target = node
+        self.rotation = 1
 
         # Timer vars
         self.state_timer = None
@@ -193,6 +194,7 @@ class Brain(Node):
 
     def cancerState(self):
         if self.obstacle_POI:
+            self.rotation = -1 * self.rotation
             self.transition(State.SPIN)
         elif self.goal_POI:
             self.transition(State.MTG)
@@ -200,7 +202,8 @@ class Brain(Node):
             self.setWheels(self.base_sp, self.base_sp)
 
     def spinState(self):
-        self.setWheels(self.base_sp, -self.base_sp)
+        self.setWheels(self.base_sp * self.rotation,
+                       -self.base_sp * self.rotation)
         self.startSpinTimer()
 
     def turnState(self):
@@ -217,6 +220,7 @@ class Brain(Node):
                                                        self.goal_error)
             self.setWheels(self.w1, self.w2)
         else:
+            self.setWheels(0.0, 0.0)
             self.transition(State.GRAPH)
 
     # Graph section
@@ -331,7 +335,7 @@ class Brain(Node):
         if self.rl_timer is None:
             print('Creating RL timer')
             self.rl_timer = ros.Timer(
-                ros.Duration(secs=1.0), self.timerRLShutdown)
+                ros.Duration(secs=1.1), self.timerRLShutdown)
 
     def timerRLShutdown(self, event):
         self.rl_timer.shutdown()
