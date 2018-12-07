@@ -57,18 +57,15 @@ class CameraController(Node):
         self.state = State.CANCER
         self.bridge = CvBridge()
 
-        poi_publisher = ros.Publisher(
+        poi_pub = ros.Publisher(
             TOPIC['POINT_OF_INTEREST'], String, queue_size=1)
-        lane_publisher = ros.Publisher(
-            TOPIC['LANE_CENTROID'], Float32, queue_size=1)
-        goal_publisher = ros.Publisher(
-            TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
+        lane_pub = ros.Publisher(TOPIC['LANE_CENTROID'], Float32, queue_size=1)
+        exit_pub = ros.Publisher(TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
 
-        self.lane_camera = LaneCamera(lane_publisher, verbose=False)
-        self.stoplight_cam = StoplightCamera(poi_publisher, verbose=verbose)
-        self.cancer = CancerousCamera(poi_publisher, verbose=verbose)
-        self.goal_cam = GoalCamera(
-            goal_publisher, poi_publisher, verbose=verbose)
+        self.lane_camera = LaneCamera(lane_pub, verbose=False)
+        self.stoplight_cam = StoplightCamera(poi_pub, verbose=verbose)
+        self.obstacle_cam = CancerousCamera(poi_pub, verbose=verbose)
+        self.exit_cam = GoalCamera(exit_pub, poi_pub, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
@@ -99,25 +96,24 @@ class CameraController(Node):
         # Blur the image before doing anything.
         hsv_frame = cv2.GaussianBlur(hsv_frame, self.BLUR_KERNEL, 0)
 
-        if self.state == State.ON_PATH or self.state == State.STOPPING:
+        if self.state == State.ON_PATH or                                     \
+           self.state == State.G_ON_PATH or                                   \
+           self.state == State.STOPPING:
             self.lane_camera.process_image(hsv_frame)
+
+        if self.state == State.ON_PATH or                                     \
+           self.state == State.STOPPING:
             self.stoplight_cam.process_image(hsv_frame)
-        elif self.state == State.CANCER or                                    \
-             self.state == State.SPIN or                                      \
-             self.state == State.MTG or                                       \
-             self.state == State.TURN:
-            # Determine if there is an obstacle directly in front of the robot.
-            self.cancer.process_image(hsv_frame)
-            # Determine if/where the lot exit is in the frame.
-            self.goal_cam.process_image(hsv_frame)
-        elif self.state == State.ORIENT:
-            # TODO: Implement an OrientationCamera that helps the Brain
-            # position itself at an intersection so that the robot is facing a
-            # road.
-            pass
-        elif self.state == State.GRAPH:
-            # TODO: Implement a GraphCamera that identifies nodes in the graph.
-            pass
+
+        if self.state == State.CANCER or                                      \
+           self.state == State.SPIN or                                        \
+           self.state == State.TURN:
+            self.obstacle_cam.process_image(hsv_frame)
+
+        if self.state == State.CANCER or                                      \
+           self.state == State.SPIN or                                        \
+           self.state == State.MTG:
+            self.exit_cam.process_image(hsv_frame)
 
         if self.verbose:
             cv2.namedWindow('Camera', cv2.WINDOW_NORMAL)
