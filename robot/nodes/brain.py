@@ -27,8 +27,8 @@ class Brain(Node):
         self.node_slice = None
         self.rl_count = 0
         self.spin_timer_counter = 0
-        self.done = False
         self.node0 = False
+        self.done = False
 
         # Timer vars
         self.state_timer = None
@@ -242,7 +242,6 @@ class Brain(Node):
 
     def nodeStoppingState(self):
         if self.node_timer is None:
-            self.setWheels(0.0, 0.0)
             self.transition(State.NODE_STOPPED)
             self.nodeTimer()
 
@@ -253,6 +252,7 @@ class Brain(Node):
             self.node0Timer()
             self.setWheels(self.base_sp, -self.base_sp)
         if self.node_timer is None:
+            self.setWheels(0.0, 0.0)
             self.node_slice = next(self.node_list, None)
             print('Node: ', self.node_slice)
             self.nodeTimer()
@@ -261,6 +261,7 @@ class Brain(Node):
     def rotateLeftState(self):
         if self.node_slice in LEFT_TURN:
             if self.rotate_timer is None:
+                print('Rotate left.')
                 self.setWheels(self.base_sp, -self.base_sp)
                 self.rotateTimer()
         else:
@@ -269,6 +270,7 @@ class Brain(Node):
     def rotateRightState(self):
         if self.node_slice in RIGHT_TURN:
             if self.rotate_timer is None:
+                print('Rotate right.')
                 self.setWheels(-self.base_sp, self.base_sp)
                 self.rotateTimer()
         else:
@@ -288,10 +290,11 @@ class Brain(Node):
             self.transition(State.END)
 
     def endState(self):
-        if not self.done :
-            self.done = True
-            print('VICTORY')
-        self.setWheels(0.0, 0.0)
+        if self.node_timer is None:
+            self.setWheels(0.0, 0.0)
+            if not self.done:
+                self.done = True
+                print('VICTORY')
 
     # Helper functions
 
@@ -300,7 +303,7 @@ class Brain(Node):
             w1 = self.w1
             w2 = self.w2
         wheels = Float32MultiArray()
-        wheels.data = [w1, w2]
+        wheels.data = [w1 + 0.5, w2]
         self.wheel_speeds.publish(wheels)
 
     def printError(self, msg):
@@ -365,7 +368,7 @@ class Brain(Node):
         if self.node_timer is None:
             print('Creating Node timer')
             self.node_timer = ros.Timer(
-                ros.Duration(secs=1.25), self.timerNodeShutdown)
+                ros.Duration(secs=1.5), self.timerNodeShutdown)
 
     def timerNodeShutdown(self, event):
         self.node_timer.shutdown()
