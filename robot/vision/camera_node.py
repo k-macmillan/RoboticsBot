@@ -41,8 +41,9 @@ class NodeCamera(Camera):
         node to the center of the frame. If the node is not visible, publish
         a 0.0.
         """
-        # These values are appropriate at max brightness.
-        purple_mask = mask_image(hsv_image, (100, 80, 100), (130, 255, 255))
+        # Convert 0-360 range to 0-179 range.
+        hue = 300 / 360 * 179
+        purple_mask = mask_image(hsv_image, (hue - 25, 30, 80), (hue + 25, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Node P Mask', cv2.WINDOW_NORMAL)
