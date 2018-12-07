@@ -20,7 +20,7 @@ class ObstacleCamera(Camera):
     # Sensitivity for the blue color detection.
     BLUE_SENSITIVITY = 10
     # How many pixels of obstacle should count as an obstruction.
-    OBSTRUCTION_TOLERANCE = 200
+    OBSTRUCTION_TOLERANCE = 1000
 
     def process_image(self, hsv_image):
         """Determine if there is an obstacle directly in front of the robot."""
