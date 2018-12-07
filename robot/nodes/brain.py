@@ -28,6 +28,7 @@ class Brain(Node):
         self.rl_count = 0
         self.spin_timer_counter = 0
         self.done = False
+        self.node0 = False
 
         # Timer vars
         self.state_timer = None
@@ -240,11 +241,12 @@ class Brain(Node):
             self.setWheels(self.w1, self.w2)
 
     def nodeStoppingState(self):
+        if not self.node0:
+            self.node0 = True
+            print('Turning to face node 1')
+            self.node0Timer()
+            self.setWheels(self.base_sp, -self.base_sp)
         if self.node_timer is None:
-            if (self.node_slice is None and self.node0_timer is None):
-                print('Turning to face node 1')
-                self.node0Timer()
-                self.setWheels(self.base_sp, -self.base_sp)
             self.transition(State.NODE_STOPPED)
             self.nodeTimer()
 
