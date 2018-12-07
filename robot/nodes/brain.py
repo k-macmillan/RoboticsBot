@@ -221,17 +221,15 @@ class Brain(Node):
 
     def graphState(self):
         # I am slightly worried about losing goal vision.
-        self.path_error = 0.5
+        self.last_centroid = self.path_error
         self.transition(State.ORIENTING)
 
     def orientingState(self):
         # Keep track of last lane centroid
-        print('orient error:', self.path_error)
-        # If we become centered on the lane...
-        if -0.1 < self.path_error < 0.1:
-            self.transition(State.G_ON_PATH)
-        else:
+        if self.path_error != self.last_centroid:
             self.setWheels(self.base_sp, -self.base_sp)
+        else:
+            self.transition(State.G_ON_PATH)
 
     def graphOnPathState(self):
         if self.node_POI:
@@ -247,14 +245,17 @@ class Brain(Node):
             self.nodeTimer(2.0)
 
     def nodeStoppedState(self):
-        self.node_slice = next(self.node_list, None)
-        print('node slice:', self.node_slice)
+        if not self.node0:
+            self.setWheels(self.base_sp, -self.base_sp)
+            self.node0Timer()
+            # Avoid state transition until after timer finishes.
+            return
+        else:
+            self.node_slice = next(self.node_list, None)
+            print('node slice:', self.node_slice)
 
         if self.node_slice is None:
             self.transition(State.END)
-        elif self.node_slice[0] == 0:
-            self.path_error = 0.5
-            self.transition(State.ORIENTING)
         else:
             self.transition(State.ROTATE_LEFT)
 
@@ -315,9 +316,6 @@ class Brain(Node):
         a, b = itertools.tee(iterable)
         next(b, None)
         return itertools.izip(a, b)
-
-    def isClose(self, a, b, epsilon=0.1):
-        return abs(a - b) < epsilon
 
     # Timer section
 
@@ -389,4 +387,17 @@ class Brain(Node):
         self.rotate_timer.shutdown()
         self.rotate_timer = None
         self.transition(State.FORWARD)
+        self.setWheels(0.0, 0.0)
+
+    def node0Timer(self):
+        if self.node0_timer is None:
+            print('Creating Node ZERO timer')
+            self.node0_timer = ros.Timer(
+                ros.Duration(secs=0.5), self.timerNode0Shutdown)
+
+    def timerNode0Shutdown(self, event):
+        print('Shutting down Node ZERO timer')
+        self.node0_timer.shutdown()
+        self.node0_timer = None
+        self.node0 = True
         self.setWheels(0.0, 0.0)
