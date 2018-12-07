@@ -217,25 +217,28 @@ class Brain(Node):
             self.transition(State.CANCER)
 
     def mtgState(self):
-        if self.lane_detected:
-            self.transition(State.G_ON_PATH)
-        else:
+        if self.goal_POI:
             self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
                                                        self.w2,
                                                        self.goal_error)
             self.setWheels(self.w1, self.w2)
+        else:
+            self.setWheels(0.0, 0.0)
+            self.transition(State.GRAPH)
 
     # Graph section
 
     def graphState(self):
         # I am slightly worried about losing goal vision.
-        pass
+        self.lane_detected = False
+        self.transition(State.ORIENTING)
 
     def orientingState(self):
         # Keep track of last lane centroid
         if not self.lane_detected:
             self.setWheels(4.0, -4.0)
         else:
+            # self.w1, self.w2 = self.base_sp, self.base_sp
             self.node_POI = False
             self.transition(State.G_ON_PATH)
 
