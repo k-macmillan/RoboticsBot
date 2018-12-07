@@ -14,7 +14,7 @@ class NodeCamera(Camera):
 
     # The minimum area of a contour required to be considered the goal.
     MIN_NODE_AREA = 20000
-    MIN_POI_AREA = 500
+    MIN_POI_AREA = 5000
     REGION_OF_INTEREST = (slice(460, 480, None), slice(0, None, None))
 
     def __init__(self, error_pub, poi_pub, verbose=False):
@@ -45,12 +45,15 @@ class NodeCamera(Camera):
         """
         # Convert 0-360 range to 0-179 range.
         hue = 300 / 360 * 179
-        purple_mask = mask_image(hsv_image, (hue - 25, 40, 90),
-                                 (hue + 25, 255, 255))
+        purple_mask = mask_image(hsv_image, (hue - 15, 40, 100),
+                                 (hue + 15, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Node P Mask', cv2.WINDOW_NORMAL)
             cv2.imshow('Node P Mask', purple_mask)
+
+            cv2.namedWindow('P Mask Slice', cv2.WINDOW_NORMAL)
+            cv2.imshow('P Mask Slice', purple_mask[self.REGION_OF_INTEREST])
 
         _, contours, _ = cv2.findContours(purple_mask, 1,
                                           cv2.CHAIN_APPROX_SIMPLE)
@@ -91,6 +94,7 @@ class NodeCamera(Camera):
             max_contour = max(poi_contours, key=cv2.contourArea)
             area = cv2.contourArea(max_contour)
             if area >= self.MIN_POI_AREA:
+                print('POI area:', area)
                 poi.data = POI['GRAPH_NODE']
 
         self.error_pub.publish(error)

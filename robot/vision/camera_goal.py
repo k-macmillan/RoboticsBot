@@ -15,10 +15,6 @@ class GoalCamera(Camera):
 
     # Sensitivity for the blue color detection.
     BLUE_SENSITIVITY = 10
-    # The threshold value.
-    THRESH_VALUE = 70
-    # The threshold maximum value.
-    THRESH_MAX = 255
     # The minimum area of a contour required to be considered the goal.
     MIN_GOAL_AREA = 10000
 
@@ -40,7 +36,7 @@ class GoalCamera(Camera):
 
         self.error_pub = error_pub
         self.poi_pub = poi_pub
-        history = 12
+        history = 20
         self.detections = deque([0]*history, maxlen=history)
         self.goal_state = False
         # self.counter = 0
@@ -97,7 +93,7 @@ class GoalCamera(Camera):
                 goal_in_sight = True
 
         self.detections.appendleft(goal_in_sight)
-        if sum(self.detections) == len(self.detections):
+        if sum(self.detections) >= len(self.detections) // 2:
             self.goal_state = True
         elif sum(self.detections) == 0:
             self.goal_state = False
