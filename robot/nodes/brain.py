@@ -34,6 +34,7 @@ class Brain(Node):
         self.rl_timer = None
         self.node_timer = None
         self.rotate_timer = None
+        self.node0_timer = None
 
         # POI
         self.stoplight_POI = False
@@ -247,6 +248,9 @@ class Brain(Node):
         if self.node_timer is None:
             self.node_slice = next(self.node_list, None)
             print('Node: ', self.node_slice)
+            if (self.node_slice[0] == 0 and self.node0_timer is None):
+                self.node0Timer()
+                self.setWheels(self.base_sp, -self.base_sp)
             self.nodeTimer()
             self.transition(State.ROTATE_LEFT)
 
@@ -371,3 +375,14 @@ class Brain(Node):
         self.rotate_timer.shutdown()
         self.rotate_timer = None
         self.transition(State.FORWARD)
+
+    def node0Timer(self):
+        if self.node0_timer is None:
+            print('Creating Node ZERO timer')
+            self.node0_timer = ros.Timer(
+                ros.Duration(secs=0.33), self.timerNode0Shutdown)
+
+    def timerNode0Shutdown(self, event):
+        self.node0_timer.shutdown()
+        self.node0_timer = None
+        self.setWheels(0.0, 0.0)
