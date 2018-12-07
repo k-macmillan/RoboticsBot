@@ -244,8 +244,10 @@ class Brain(Node):
             self.nodeTimer()
 
     def nodeStoppedState(self):
-        self.node_slice = next(self.node_list)
-        self.transition(State.ROTATE_LEFT)
+        if self.node_timer is None:
+            self.node_slice = next(self.node_list)
+            self.nodeTimer()
+            self.transition(State.ROTATE_LEFT)
 
     def rotateLeftState(self):
         if self.node_slice in LEFT_TURN:
