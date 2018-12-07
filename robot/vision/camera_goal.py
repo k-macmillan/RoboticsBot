@@ -36,7 +36,7 @@ class GoalCamera(Camera):
 
         self.error_pub = error_pub
         self.poi_pub = poi_pub
-        history = 20
+        history = 30
         self.detections = deque([0]*history, maxlen=history)
         self.goal_state = False
         # self.counter = 0
@@ -93,7 +93,7 @@ class GoalCamera(Camera):
                 goal_in_sight = True
 
         self.detections.appendleft(goal_in_sight)
-        if sum(self.detections) >= len(self.detections) // 2:
+        if sum(self.detections) >= len(self.detections) // 3:
             self.goal_state = True
         elif sum(self.detections) == 0:
             self.goal_state = False
