@@ -69,7 +69,7 @@ class CameraController(Node):
         self.stoplight_cam = StoplightCamera(poi_pub, verbose=False)
         self.obstacle_cam = ObstacleCamera(poi_pub, verbose=False)
         self.exit_cam = GoalCamera(exit_pub, poi_pub, verbose=verbose)
-        self.node_cam = NodeCamera(node_pub, poi_pub, verbose=False)
+        self.node_cam = NodeCamera(node_pub, poi_pub, verbose=verbose)
 
     def init_node(self):
         """Perform custom Node initialization."""
