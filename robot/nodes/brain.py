@@ -238,7 +238,7 @@ class Brain(Node):
         if not self.lane_detected:
             self.setWheels(4.0, -4.0)
         else:
-            self.w1, self.w2 = self.base_sp, self.base_sp
+            # self.w1, self.w2 = self.base_sp, self.base_sp
             self.node_POI = False
             self.transition(State.G_ON_PATH)
 
@@ -253,7 +253,7 @@ class Brain(Node):
 
     def nodeStoppingState(self):
         if self.node_timer is None:
-            self.nodeTimer(2.0)
+            self.nodeTimer(1.5)
 
     def nodeStoppedState(self):
         if not self.node0:
@@ -295,7 +295,7 @@ class Brain(Node):
         if self.node_POI:
             self.transition(State.NODE_STOPPING)
         else:
-            print('node error:', self.node_error)
+            # print('node error:', self.node_error)
             self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
                                                        self.w2,
                                                        self.node_error)
@@ -377,6 +377,7 @@ class Brain(Node):
 
     def nodeTimer(self, time):
         if self.node_timer is None:
+            self.setWheels(8.0, 8.0)
             print('Creating Node timer')
             self.node_timer = ros.Timer(
                 ros.Duration(secs=time), self.timerNodeShutdown)

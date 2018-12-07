@@ -94,7 +94,7 @@ class NodeCamera(Camera):
             max_contour = max(poi_contours, key=cv2.contourArea)
             area = cv2.contourArea(max_contour)
             if area >= self.MIN_POI_AREA:
-                print('POI area:', area)
+                # print('POI area:', area)
                 poi.data = POI['GRAPH_NODE']
 
         self.error_pub.publish(error)
