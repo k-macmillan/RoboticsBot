@@ -132,12 +132,14 @@ class Brain(Node):
             self.stoppedState()
         # Parking Lot
         elif self.state == State.CANCER:
+            self.base_sp = 7.0
             self.cancerState()
         elif self.state == State.SPIN:
             self.spinState()
         elif self.state == State.TURN:
             self.turnState()
         elif self.state == State.MTG:
+            self.base_sp = 8.0
             self.mtgState()
         # Graph
         elif self.state == State.GRAPH:
@@ -342,7 +344,7 @@ class Brain(Node):
                 ros.Duration(secs=0.01), self.timerSpinCallback)
 
     def timerSpinCallback(self, event):
-        if self.spin_timer_counter > 500:
+        if self.spin_timer_counter > 600:
             self.timerSpinShutdown()
             # Set turn direction and set state to TURN
             if bool(random.getrandbits(1)):
