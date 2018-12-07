@@ -245,7 +245,8 @@ class Brain(Node):
 
     def nodeStoppedState(self):
         if self.node_timer is None:
-            self.node_slice = next(self.node_list)
+            self.node_slice = next(self.node_list, None)
+            print('Node: ', self.node_slice)
             self.nodeTimer()
             self.transition(State.ROTATE_LEFT)
 
@@ -353,7 +354,7 @@ class Brain(Node):
         if self.node_timer is None:
             print('Creating Node timer')
             self.node_timer = ros.Timer(
-                ros.Duration(secs=1.2), self.timerNodeShutdown)
+                ros.Duration(secs=1.75), self.timerNodeShutdown)
 
     def timerNodeShutdown(self, event):
         self.node_timer.shutdown()
