@@ -234,7 +234,7 @@ class Brain(Node):
     def orientingState(self):
         # Keep track of last lane centroid
         if self.path_error != self.last_centroid:
-            self.setWheels(self.base_sp, -self.base_sp)
+            self.setWheels(4.0, -4.0)
         else:
             self.transition(State.G_ON_PATH)
 
