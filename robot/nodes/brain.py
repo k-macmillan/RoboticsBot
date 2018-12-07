@@ -232,7 +232,7 @@ class Brain(Node):
 
     def graphOnPathState(self):
         if self.node_POI:
-            self.nodeTimer()
+            self.nodeTimer(2.0)
             self.transition(State.NODE_STOPPING)
         else:
             self.w1, self.w2 = self.DL.calcWheelSpeeds(self.w1,
@@ -243,7 +243,7 @@ class Brain(Node):
     def nodeStoppingState(self):
         if self.node_timer is None:
             self.transition(State.NODE_STOPPED)
-            self.nodeTimer()
+            self.nodeTimer(1.5)
 
     def nodeStoppedState(self):
         if not self.node0:
@@ -255,7 +255,7 @@ class Brain(Node):
             self.setWheels(0.0, 0.0)
             self.node_slice = next(self.node_list, None)
             print('Node: ', self.node_slice)
-            self.nodeTimer()
+            self.nodeTimer(1.5)
             self.transition(State.ROTATE_LEFT)
 
     def rotateLeftState(self):
@@ -364,11 +364,11 @@ class Brain(Node):
         self.w2 = self.base_sp
         self.setWheels(0.0, 0.0)
 
-    def nodeTimer(self):
+    def nodeTimer(self, time):
         if self.node_timer is None:
             print('Creating Node timer')
             self.node_timer = ros.Timer(
-                ros.Duration(secs=1.5), self.timerNodeShutdown)
+                ros.Duration(secs=time), self.timerNodeShutdown)
 
     def timerNodeShutdown(self, event):
         self.node_timer.shutdown()
