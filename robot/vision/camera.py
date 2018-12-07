@@ -102,6 +102,7 @@ class CameraController(Node):
 
         if self.state == State.ON_PATH or                                     \
            self.state == State.G_ON_PATH or                                   \
+           self.state == State.ORIENTING or                                   \
            self.state == State.STOPPING:
             self.lane_camera.process_image(hsv_frame)
 
@@ -123,8 +124,9 @@ class CameraController(Node):
            self.state == State.END or                                         \
            self.state == State.NODE_STOPPING or                               \
            self.state == State.NODE_STOPPED or                                \
-           self.state == State.ROTATE_LEFT or                                \
+           self.state == State.ROTATE_LEFT or                                 \
            self.state == State.ROTATE_RIGHT or                                \
+           self.state == State.ORIENTING or                                   \
            self.state == State.FORWARD:
             self.node_cam.process_image(hsv_frame)
 

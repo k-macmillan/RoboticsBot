@@ -55,7 +55,7 @@ class Brain(Node):
         self.state_pub = ros.Publisher(
             TOPIC['ROBOT_STATE'], UInt8, queue_size=1)
         self.DL = DriveLine(r=5.0, L=19.5 / 2.0)
-        self.base_sp = 7.0
+        self.base_sp = 8.0
         self.w1 = self.base_sp
         self.w2 = self.base_sp
 
@@ -226,6 +226,7 @@ class Brain(Node):
 
     def orientingState(self):
         # Keep track of last lane centroid
+        print('orient error:', self.path_error)
         if self.path_error != self.last_centroid:
             self.setWheels(self.base_sp, -self.base_sp)
         else:
@@ -242,13 +243,17 @@ class Brain(Node):
 
     def nodeStoppingState(self):
         if self.node_timer is None:
-            self.nodeTimer(1.5)
+            self.nodeTimer(2.0)
 
     def nodeStoppedState(self):
         self.node_slice = next(self.node_list, None)
+        print('node slice:', self.node_slice)
 
-        if self.node_slice[1] == self.target or self.node_slice[1] is None:
+        if self.node_slice is None:
             self.transition(State.END)
+        elif self.node_slice[0] == 0:
+            self.last_centroid = self.path_error
+            self.transition(State.ORIENTING)
         else:
             self.transition(State.ROTATE_LEFT)
 
