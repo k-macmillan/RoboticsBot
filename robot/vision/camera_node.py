@@ -10,10 +10,11 @@ from .mask import mask_image
 
 
 class NodeCamera(Camera):
-    """Camera class for detecting the goal."""
+    """Camera class for detecting nodes."""
 
     # The minimum area of a contour required to be considered the goal.
-    MIN_GOAL_AREA = 20000
+    MIN_NODE_AREA = 20000
+    MIN_POI_AREA = 500
     REGION_OF_INTEREST = (slice(460, 480, None), slice(0, None, None))
 
     def __init__(self, error_pub, poi_pub, verbose=False):
@@ -70,7 +71,7 @@ class NodeCamera(Camera):
             M = cv2.moments(max_contour)
             # If the contour area is bigger than some threshold, try to find
             # its centroid, if possible.
-            if area > self.MIN_GOAL_AREA and M['m00'] != 0:
+            if area > self.MIN_NODE_AREA and M['m00'] != 0:
                 cx = int(M['m10'] / M['m00'])
                 # cy = int(M['m01'] / M['m00'])
 
@@ -89,7 +90,7 @@ class NodeCamera(Camera):
         if poi_contours:
             max_contour = max(poi_contours, key=cv2.contourArea)
             area = cv2.contourArea(max_contour)
-            if area > self.MIN_GOAL_AREA:
+            if area >= self.MIN_POI_AREA:
                 poi.data = POI['GRAPH_NODE']
 
         self.error_pub.publish(error)
