@@ -41,6 +41,7 @@ class GoalCamera(Camera):
         self.error_pub = error_pub
         self.poi_pub = poi_pub
         self.detections = deque([0]*10, maxlen=10)
+        self.goal_state = False
         # self.counter = 0
 
     def process_image(self, hsv_image):
@@ -95,7 +96,12 @@ class GoalCamera(Camera):
                 goal_in_sight = True
 
         self.detections.appendleft(goal_in_sight)
-        if sum(self.detections) != 0:
+        if sum(self.detections) == 10:
+            self.goal_state = True
+        elif sum(self.detections) == 0:
+            self.goal_state = False
+
+        if self.goal_state:
             poi.data = POI['EXIT_LOT']
         else:
             poi.data = POI['NO_EXIT_LOT']
