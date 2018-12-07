@@ -9,7 +9,7 @@ from robot.common import POI
 from .camera_base import Camera
 
 
-class CancerousCamera(Camera):
+class ObstacleCamera(Camera):
     """Publish obstacle obstruction information."""
 
     # The region where the obstacle would be directly in front of us.

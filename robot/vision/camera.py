@@ -9,7 +9,7 @@ from std_msgs.msg import Float32, String, UInt8
 from robot.common import TOPIC, State
 from robot.nodes import Node
 
-from .camera_cancer import CancerousCamera
+from .camera_obstacle import ObstacleCamera
 from .camera_goal import GoalCamera
 from .camera_lane import LaneCamera
 from .camera_stoplight import StoplightCamera
@@ -54,6 +54,7 @@ class CameraController(Node):
         self.state_topic = state_topic
 
         self.verbose = verbose
+        # Force the camera's state during testing:wq
         self.state = State.CANCER
         self.bridge = CvBridge()
 
@@ -64,7 +65,7 @@ class CameraController(Node):
 
         self.lane_camera = LaneCamera(lane_pub, verbose=False)
         self.stoplight_cam = StoplightCamera(poi_pub, verbose=verbose)
-        self.obstacle_cam = CancerousCamera(poi_pub, verbose=verbose)
+        self.obstacle_cam = ObstacleCamera(poi_pub, verbose=verbose)
         self.exit_cam = GoalCamera(exit_pub, poi_pub, verbose=verbose)
 
     def init_node(self):
