@@ -65,11 +65,11 @@ class CameraController(Node):
         exit_pub = ros.Publisher(TOPIC['GOAL_CENTROID'], Float32, queue_size=1)
         node_pub = ros.Publisher(TOPIC['NODE_CENTROID'], Float32, queue_size=1)
 
-        self.lane_camera = LaneCamera(lane_pub, verbose=verbose)
-        self.stoplight_cam = StoplightCamera(poi_pub, verbose=verbose)
-        self.obstacle_cam = ObstacleCamera(poi_pub, verbose=verbose)
+        self.lane_camera = LaneCamera(lane_pub, verbose=False)
+        self.stoplight_cam = StoplightCamera(poi_pub, verbose=False)
+        self.obstacle_cam = ObstacleCamera(poi_pub, verbose=False)
         self.exit_cam = GoalCamera(exit_pub, poi_pub, verbose=verbose)
-        self.node_cam = NodeCamera(node_pub, poi_pub, verbose=verbose)
+        self.node_cam = NodeCamera(node_pub, poi_pub, verbose=False)
 
     def init_node(self):
         """Perform custom Node initialization."""

@@ -52,7 +52,7 @@ class GoalCamera(Camera):
         # if self.counter % 10 == 0:
         #     print('counter:', self.counter)
         # These values are appropriate at max brightness.
-        blue_mask = mask_image(hsv_image, (100, 20, 80), (130, 255, 255))
+        blue_mask = mask_image(hsv_image, (110, 80, 80), (130, 255, 255))
 
         if self.verbose:
             cv2.namedWindow('Goal B Mask', cv2.WINDOW_NORMAL)
